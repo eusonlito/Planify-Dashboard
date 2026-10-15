@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Meteocons 3.0.0-next.10 (line), MIT: generado por scripts/meteocons.py -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+    <path
+        android:pathData="M64.501 37.635c5.19 7.86 9.415 14.303 12.432 20.02C80.259 63.962 82 69.172 82 74.175 82 84.052 74.138 92 64.5 92 54.864 92 47 84.028 47 74.175c0-4.99 1.74-10.194 5.067-16.501 3.017-5.719 7.242-12.168 12.434-20.04Z"
+        android:strokeColor="#1D4ED8"
+        android:strokeWidth="4"
+        android:strokeMiterLimit="10" />
+</vector>

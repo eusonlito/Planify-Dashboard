@@ -1,0 +1,10 @@
+backups/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.kotlin/
+# Copia del repositorio de wesbos como referencia (tiene su propio git)
+docs/photo-frame-dashboard/
+android/planify.properties
+scripts/config.local

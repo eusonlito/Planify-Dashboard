@@ -1,0 +1,7 @@
+# Configuración de compilación del dashboard. Cópialo como planify.properties (git lo ignora) y rellénalo.
+
+# URL del backend de Planify (Planify-Backend) que usa la release. Obligatoria para compilar la release.
+planify.baseUrl=https://planify.example.com/
+
+# URL del backend para la versión debug. Por defecto, el backend local visto desde el emulador.
+#planify.debugBaseUrl=http://10.0.2.2:3000/

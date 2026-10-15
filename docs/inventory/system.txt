@@ -1,0 +1,280 @@
+earlyprintk=sunxi-uart,0x05000000 initcall_debug=0 console=ttyS0,115200 loglevel=8 root=/dev/mmcblk0p4 init=/init partitions=bootloader@mmcblk0p1:env@mmcblk0p2:boot@mmcblk0p3:super@mmcblk0p4:misc@mmcblk0p5:recovery@mmcblk0p6:cache@mmcblk0p7:vbmeta@mmcblk0p8:vbmeta_system@mmcblk0p9:vbmeta_vendor@mmcblk0p10:metadata@mmcblk0p11:private@mmcblk0p12:frp@mmcblk0p13:empty@mmcblk0p14:dtbo@mmcblk0p15:media_data@mmcblk0p16:UDISK@mmcblk0p17 cma=8M snum=XCPF10PF2PXXXXXX mac_addr= wifi_mac= bt_mac= specialstr= gpt=1 androidboot.vbmeta.avb_version=2.0 androidboot.vbmeta.hash_alg=sha256 androidboot.vbmeta.size=7168 androidboot.vbmeta.digest=12737d3b727db2feb2fc5d3d3651504e16adf1bc2ed79dd3efcec9c69fa44be4 androidboot.vbmeta.device_state=locked androidboot.mode=normal androidboot.serialno=XCPF10PF2PXXXXXX androidboot.hardware=sun50iw10p1 boot_type=2 androidboot.boot_type=2 androidboot.secure_os_exist=0 androidboot.trustchain=false gpt=1 uboot_message=2018.05(08/11/2025-11:16:50) disp_reserve=9216000,0x7bf50100 bootreason=charger firmware_class.path=/vendor/etc/firmware selinux=1 androidboot.selinux=permissive androidboot.dtbo_idx=0,1,2 buildvariant=eng
+
+processor	: 0
+model name	: ARMv8 Processor rev 4 (v8l)
+BogoMIPS	: 48.00
+Features	: half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt lpae aes pmull sha1 sha2 crc32
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd03
+CPU revision	: 4
+
+processor	: 1
+model name	: ARMv8 Processor rev 4 (v8l)
+BogoMIPS	: 48.00
+Features	: half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt lpae aes pmull sha1 sha2 crc32
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd03
+CPU revision	: 4
+
+processor	: 2
+model name	: ARMv8 Processor rev 4 (v8l)
+BogoMIPS	: 48.00
+Features	: half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt lpae aes pmull sha1 sha2 crc32
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd03
+CPU revision	: 4
+
+processor	: 3
+model name	: ARMv8 Processor rev 4 (v8l)
+BogoMIPS	: 48.00
+Features	: half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt lpae aes pmull sha1 sha2 crc32
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd03
+CPU revision	: 4
+
+
+MemTotal:         985816 kB
+MemFree:           65164 kB
+MemAvailable:     439976 kB
+Buffers:            1816 kB
+Cached:           427688 kB
+SwapCached:         4996 kB
+Active:           224700 kB
+Inactive:         356648 kB
+Active(anon):      96384 kB
+Inactive(anon):    60904 kB
+Active(file):     128316 kB
+Inactive(file):   295744 kB
+Unevictable:        2652 kB
+Mlocked:            2652 kB
+SwapTotal:        739356 kB
+SwapFree:         700412 kB
+Dirty:                 8 kB
+Writeback:             0 kB
+AnonPages:        154068 kB
+Mapped:           287096 kB
+Shmem:              3364 kB
+Slab:              79136 kB
+SReclaimable:      26320 kB
+SUnreclaim:        52816 kB
+KernelStack:       11616 kB
+PageTables:        16296 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     1232264 kB
+Committed_AS:   11690868 kB
+VmallocTotal:   263061440 kB
+VmallocUsed:       14156 kB
+VmallocChunk:          0 kB
+CmaTotal:           8192 kB
+CmaFree:            7360 kB
+
+Filename				Type		Size	Used	Priority
+/dev/block/zram0                        partition	739356	38944	-1
+
+Linux localhost 4.9.170 #1 SMP PREEMPT Thu Jan 29 20:33:41 CST 2026 armv8l
+
+Metadata version: 10.0
+Metadata size: 516 bytes
+Metadata max size: 65536 bytes
+Metadata slot count: 2
+Partition table:
+------------------------
+  Name: system
+  Group: sb
+  Attributes: readonly
+  Extents:
+    0 .. 1112223 linear super 2048
+------------------------
+  Name: vendor
+  Group: sb
+  Attributes: readonly
+  Extents:
+    0 .. 252359 linear super 1116160
+------------------------
+  Name: product
+  Group: sb
+  Attributes: readonly
+  Extents:
+    0 .. 781551 linear super 1370112
+------------------------
+Block device table:
+------------------------
+  Partition name: super
+  First sector: 2048
+  Size: 2147483648 bytes
+  Flags: none
+------------------------
+Group table:
+------------------------
+  Name: default
+  Maximum size: 0 bytes
+  Flags: none
+------------------------
+  Name: sb
+  Maximum size: 2139095040 bytes
+  Flags: none
+------------------------
+
+Filesystem            Size  Used Avail Use% Mounted on
+tmpfs                 481M  616K  481M   1% /dev
+tmpfs                 481M     0  481M   0% /mnt
+tmpfs                 481M     0  481M   0% /apex
+/dev/block/mmcblk0p11  11M   72K   11M   1% /metadata
+/dev/block/dm-0       534M  532M  1.6M 100% /
+/dev/block/dm-1       121M  121M  436K 100% /vendor
+/dev/block/dm-2       375M  374M  1.2M 100% /product
+/dev/block/mmcblk0p17  26G  932M   25G   4% /data
+/dev/block/mmcblk0p7  740M  796K  739M   1% /cache
+/data/media            26G  932M   25G   4% /mnt/runtime/default/emulated
+
+Build configuration: [sf PRESENT_TIME_OFFSET=0 FORCE_HWC_FOR_RBG_TO_YUV=0 MAX_VIRT_DISPLAY_DIM=0 RUNNING_WITHOUT_SYNC_FRAMEWORK=0 NUM_FRAMEBUFFER_SURFACE_BUFFERS=3] [libui] [libgui]
+
+Display identification data:
+Display 0 (HWC display 0): no identification data
+
+Wide-Color information:
+Device has wide color built-in display: 0
+Device uses color management: 0
+DisplayColorSetting: Managed
+Display 0 color modes:
+    ColorMode::NATIVE (0)
+    Current color mode: ColorMode::NATIVE (0)
+
+Sync configuration: [using: EGL_ANDROID_native_fence_sync EGL_KHR_wait_sync]
+
+VSYNC configuration:
+         app phase:   1000000 ns	         SF phase:   1000000 ns
+   early app phase:   1000000 ns	   early SF phase:   1000000 ns
+GL early app phase:   1000000 ns	GL early SF phase:   1000000 ns
+    present offset:         0 ns	     VSYNC period:  16666666 ns
+
+Scheduler enabled.+  Smart 90 for video detection: off
+
+app: state=Idle VSyncState={displayId=0, count=1114}
+  pending events (count=0):
+  connections (count=20):
+    Connection{0xf0205690, VSyncRequest::None}
+    Connection{0xf0207440, VSyncRequest::None}
+    Connection{0xedf04950, VSyncRequest::None}
+    Connection{0xedf04a40, VSyncRequest::None}
+    Connection{0xedf04a90, VSyncRequest::None}
+    Connection{0xedf04b30, VSyncRequest::None}
+    Connection{0xedf04bd0, VSyncRequest::None}
+    Connection{0xedf04d10, VSyncRequest::None}
+    Connection{0xedf05530, VSyncRequest::None}
+    Connection{0xedf06d90, VSyncRequest::None}
+    Connection{0xedf070b0, VSyncRequest::None}
+    Connection{0xedf07100, VSyncRequest::None}
+    Connection{0xedfdc0f0, VSyncRequest::None}
+    Connection{0xedf07600, VSyncRequest::None}
+    Connection{0xedf076a0, VSyncRequest::None}
+    Connection{0xedfdcff0, VSyncRequest::None}
+    Connection{0xedfdd0e0, VSyncRequest::None}
+    Connection{0xedf07740, VSyncRequest::None}
+    Connection{0xedf046d0, VSyncRequest::None}
+    Connection{0xedfdd360, VSyncRequest::None}
+
+Static screen stats:
+  < 1 frames: 8.581 s (1.8%)
+  < 2 frames: 8.228 s (1.7%)
+  < 3 frames: 0.513 s (0.1%)
+  < 4 frames: 0.428 s (0.1%)
+  < 5 frames: 0.219 s (0.0%)
+  < 6 frames: 0.355 s (0.1%)
+  < 7 frames: 1.471 s (0.3%)
+  7+ frames: 467.016 s (95.9%)
+
+Total missed frame count: 210
+HWC missed frame count: 117
+GPU missed frame count: 93
+
+INPUT MANAGER (dumpsys input)
+
+Input Manager State:
+  Interactive: true
+  System UI Visibility: 0x0
+  Pointer Speed: 0
+  Pointer Gestures Enabled: true
+  Show Touches: false
+  Pointer Capture Enabled: false
+
+Event Hub State:
+  BuiltInKeyboardId: -2
+  Devices:
+    -1: Virtual
+      Classes: 0x40000023
+      Path: <virtual>
+      Enabled: true
+      Descriptor: a718a782d34bc767f4689c232d64d527998ea7fd
+      Location: 
+      ControllerNumber: 0
+      UniqueId: <virtual>
+      Identifier: bus=0x0000, vendor=0x0000, product=0x0000, version=0x0000
+      KeyLayoutFile: /system/usr/keylayout/Generic.kl
+      KeyCharacterMapFile: /system/usr/keychars/Virtual.kcm
+      ConfigurationFile: 
+      HaveKeyboardLayoutOverlay: false
+      VideoDevice: <none>
+    2: gslX680
+      Classes: 0x00000014
+      Path: /dev/input/event3
+      Enabled: true
+      Descriptor: 7d7eeb71ea7765ef9584a43b6c32b201b90835d3
+      Location: 
+      ControllerNumber: 0
+      UniqueId: 
+      Identifier: bus=0x0018, vendor=0x0000, product=0x0000, version=0x0000
+      KeyLayoutFile: 
+      KeyCharacterMapFile: 
+      ConfigurationFile: 
+      HaveKeyboardLayoutOverlay: false
+      VideoDevice: <none>
+    3: sunxi-keyboard
+      Classes: 0x00000001
+      Path: /dev/input/sunxi-keyboard
+      Enabled: true
+      Descriptor: 485d69228e24f5e46da1598745890b214130dbc4
+      Location: sunxikbd/input0
+      ControllerNumber: 0
+      UniqueId: 
+      Identifier: bus=0x0019, vendor=0x0001, product=0x0001, version=0x0100
+      KeyLayoutFile: /system/usr/keylayout/Generic.kl
+      KeyCharacterMapFile: /system/usr/keychars/Generic.kcm
+      ConfigurationFile: 
+      HaveKeyboardLayoutOverlay: false
+      VideoDevice: <none>
+    4: axp803-pek
+      Classes: 0x00000001
+      Path: /dev/input/event1
+      Enabled: true
+      Descriptor: 0d6d15b28d0e41d645d9e3051b7f41a2378b9c3d
+      Location: m1kbd/input2
+      ControllerNumber: 0
+      UniqueId: 
+      Identifier: bus=0x0000, vendor=0x0000, product=0x0000, version=0x0000
+      KeyLayoutFile: /system/usr/keylayout/Generic.kl
+      KeyCharacterMapFile: /system/usr/keychars/Generic.kcm
+      ConfigurationFile: 
+      HaveKeyboardLayoutOverlay: false
+      VideoDevice: <none>
+    5: sun50iw10-codec sunxi Audio Jack
+      Classes: 0x00000081
+      Path: /dev/input/event2
+      Enabled: true
+      Descriptor: 9a84d187b447ccec6f05c61228139f5b9ce9448b
+      Location: ALSA
+      ControllerNumber: 0
+      UniqueId: 
+      Identifier: bus=0x0000, vendor=0x0000, product=0x0000, version=0x0000
+      KeyLayoutFile: /system/usr/keylayout/Generic.kl
+      KeyCharacterMapFile: /system/usr/keychars/Generic.kcm

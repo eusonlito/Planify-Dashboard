@@ -1,0 +1,11 @@
+# Instalado en /system/etc/init por scripts/install.sh.
+# init no ejecuta /system/bin/sh sin transición de dominio: se usa el dominio su (build eng), como adbd root.
+service planify-frame /system/bin/sh /system/etc/planify-frame.sh
+    user root
+    group root
+    seclabel u:r:su:s0
+    oneshot
+    disabled
+
+on property:sys.boot_completed=1
+    start planify-frame

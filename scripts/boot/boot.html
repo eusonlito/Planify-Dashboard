@@ -1,0 +1,48 @@
+<!doctype html>
+<!--
+  Arranque del marco: la misma composición sirve para el logo del bootloader y para la
+  animación de Android, así el paso de uno a otro no se nota.
+    boot.html#logo      → pantalla completa 1920×1200 (bootlogo.bmp)
+    boot.html#frame=N   → solo el recuadro central de 640×520 (fotogramas de bootanimation.zip)
+  Lo renderiza make.sh con Chrome headless.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: Geist; font-weight: 600; src: url("../../android/app/src/main/res/font/geist_semibold.ttf"); }
+  :root { --bg: #F7EEE2; --ink: #221D18; --dot: #A6998A; --dot-on: #3A81D7; }
+  html, body { margin: 0; background: var(--bg); overflow: hidden; }
+  body.logo { width: 1920px; height: 1200px; }
+  body.frame { width: 640px; height: 520px; }
+  .box { position: absolute; width: 640px; height: 520px; display: flex; flex-direction: column; align-items: center; }
+  body.logo .box { left: 640px; top: 340px; }
+  body.frame .box { left: 0; top: 0; }
+  svg.icon { width: 240px; height: 240px; margin-top: 40px; }
+  .name { font: 600 76px/1 Geist, sans-serif; color: var(--ink); letter-spacing: -1.5px; margin-top: 28px; }
+  .dots { display: flex; gap: 22px; margin-top: 48px; }
+  .dots i { width: 16px; height: 16px; border-radius: 50%; background: var(--dot); }
+</style>
+</head>
+<body>
+<div class="box">
+  <svg class="icon" viewBox="8 8 104 104"><defs><linearGradient id="a" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="oklch(0.60 0.15 255)"/><stop offset="100%" stop-color="oklch(0.50 0.15 280)"/></linearGradient></defs><rect width="104" height="104" x="8" y="8" fill="url(#a)" rx="28"/><circle cx="36" cy="36" r="4" fill="#fff" opacity=".4"/><circle cx="60" cy="36" r="4" fill="#fff" opacity=".55"/><circle cx="84" cy="36" r="4" fill="#fff" opacity=".4"/><circle cx="36" cy="60" r="4" fill="#fff" opacity=".55"/><path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" d="m40 68 16 16 36-38"/></svg>
+  <div class="name">Planify</div>
+  <div class="dots"><i></i><i></i><i></i></div>
+</div>
+<script>
+  // Un ciclo de FRAMES fotogramas: una onda recorre los tres puntos. El fotograma 0 es el reposo
+  // que también lleva el logo del bootloader.
+  const FRAMES = 36;
+  const hash = location.hash.slice(1);
+  const frame = hash.startsWith('frame=') ? Number(hash.slice(6)) : 0;
+  document.body.className = hash === 'logo' ? 'logo' : 'frame';
+  document.querySelectorAll('.dots i').forEach((dot, i) => {
+    const phase = (frame / FRAMES - i * 0.18 + 1) % 1;               // 0..1
+    const k = phase < 0.4 ? Math.sin(phase / 0.4 * Math.PI) : 0;     // pulso breve y luego reposo
+    dot.style.background = `color-mix(in oklab, var(--dot-on) ${Math.round(k * 100)}%, var(--dot))`;
+    dot.style.transform = `scale(${1 + 0.35 * k})`;
+  });
+</script>
+</body>
+</html>

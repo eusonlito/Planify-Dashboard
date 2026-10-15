@@ -1,0 +1,12 @@
+# Configuración de cada instalación del marco. Cópialo como scripts/config.local (git lo ignora) y rellénalo.
+# install.sh lo carga; las variables de entorno con el mismo nombre tienen prioridad.
+
+# IP del PC desde el que se actualiza por ADB Wi-Fi (puerto 5555). Es la única IP a la que el cortafuegos del
+# marco deja entrar; conviene reservarla en el router. Vacía: no se activa ADB por Wi-Fi (solo USB).
+ADB_FROM=
+
+# Zona horaria del marco. Por defecto, la de este PC.
+#FRAME_TIMEZONE=Europe/Madrid
+
+# Servidor NTP (el RTC del marco no conserva la hora).
+#FRAME_NTP=pool.ntp.org
