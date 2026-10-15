@@ -60,8 +60,13 @@ Las tareas pendientes de las listas elegidas en la APP, una columna por lista.
 
 <img src="docs/images/tasks.png" alt="Tareas" />
 
+### Reloj nocturno
+Fuera de horario, o al pulsar la luna de la barra lateral, la pantalla no se apaga: queda la hora en grande, la fecha y el tiempo de ahora en blanco sobre negro, con la retroiluminación al mínimo (1 de 255). Tocarlo enseña el dashboard; fuera de horario, durante 5 minutos.
+
+<img src="docs/images/night.png" alt="Reloj nocturno" />
+
 ### Ajustes
-Ubicación del tiempo (búsqueda en Open-Meteo), horario de pantalla (entre semana y fin de semana), brillo y Sistema: estado del Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar.
+Ubicación del tiempo (búsqueda en Open-Meteo), horario de pantalla (entre semana y fin de semana, con el interruptor «Reloj nocturno»: si se desactiva, fuera de horario la pantalla se apaga del todo), brillo y Sistema: estado del Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar.
 
 <img src="docs/images/settings.png" alt="Ajustes" />
 
