@@ -12,7 +12,6 @@ Este proyecto está conectado con la aplicación y el backend de Planify:
 
 <p align="center">
   <img src="docs/images/frame.jpg" width="80%" alt="El dashboard funcionando en el marco XORO CPF 10PF" />
-  <br><sub>El marco en la pared (una versión anterior del diseño; los datos personales están pixelados).</sub>
 </p>
 
 ---
