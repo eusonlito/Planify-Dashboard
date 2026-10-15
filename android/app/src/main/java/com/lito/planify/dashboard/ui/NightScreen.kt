@@ -52,7 +52,7 @@ fun NightScreen(state: UiState, onWake: () -> Unit) {
             state.forecast?.current?.let { current ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(44.dp),
                     modifier = Modifier.padding(top = 56.dp)
                 ) {
                     WeatherIcon(current.weather_code, current.is_day == 1, size = 80)
