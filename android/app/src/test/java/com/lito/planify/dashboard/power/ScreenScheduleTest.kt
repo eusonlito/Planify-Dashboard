@@ -47,4 +47,12 @@ class ScreenScheduleTest {
         assertFalse(ScreenSchedule.isNight(schedule.copy(screenOff = true), wednesday.withHour(23)))
         assertFalse(ScreenSchedule.isNight(Schedule(enabled = false), wednesday.withHour(3)))
     }
+
+    @Test
+    fun nextOnIsTheNextWindowStart() {
+        assertEquals(wednesday.plusDays(1).withHour(7), ScreenSchedule.nextOn(schedule, wednesday.withHour(15)))
+        assertEquals(wednesday.withHour(7), ScreenSchedule.nextOn(schedule, wednesday.withHour(3)))
+        // Viernes por la tarde → sábado 08:30
+        assertEquals(saturday.withHour(8).withMinute(30), ScreenSchedule.nextOn(schedule, saturday.minusDays(1).withHour(18)))
+    }
 }

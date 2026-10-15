@@ -55,11 +55,16 @@ data class UiState(
     val geoResults: List<GeoResult> = emptyList(),
     val geoSearching: Boolean = false,
     /** Tocar el reloj nocturno enseña el dashboard hasta esta hora. */
-    val peekUntil: LocalDateTime? = null
+    val peekUntil: LocalDateTime? = null,
+    /** Reloj nocturno pedido con la luna de la barra lateral: hasta que se toque o hasta el siguiente encendido. */
+    val nightUntil: LocalDateTime? = null
 ) {
-    /** Fuera de horario con el reloj nocturno (y sin estar mirando el dashboard un momento). */
+    /** Reloj nocturno: fuera de horario (salvo mientras se mira el dashboard un momento) o pedido con la luna. */
     val night: Boolean
-        get() = clockValid && token != null && ScreenSchedule.isNight(schedule, now) && (peekUntil == null || !now.isBefore(peekUntil))
+        get() = clockValid && token != null && (
+            (nightUntil != null && now.isBefore(nightUntil)) ||
+                (ScreenSchedule.isNight(schedule, now) && (peekUntil == null || !now.isBefore(peekUntil)))
+            )
 }
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
@@ -247,9 +252,23 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         ScreenSchedule.reschedule(getApplication())
     }
 
-    /** Desde el reloj nocturno: el dashboard durante [ScreenSchedule.GRACE_MINUTES] y vuelta al reloj. */
+    /**
+     * Desde el reloj nocturno: vuelve el dashboard. Fuera de horario, solo durante [ScreenSchedule.GRACE_MINUTES];
+     * el reloj pedido con la luna se quita del todo.
+     */
     fun peek() {
-        _state.update { it.copy(peekUntil = LocalDateTime.now().plusMinutes(ScreenSchedule.GRACE_MINUTES)) }
+        _state.update { it.copy(peekUntil = LocalDateTime.now().plusMinutes(ScreenSchedule.GRACE_MINUTES), nightUntil = null) }
+    }
+
+    /**
+     * La luna de la barra lateral. Con el horario y el reloj nocturno activos, pasa al reloj (hasta que se toque o
+     * hasta el siguiente encendido) y devuelve true; si no, false y la pantalla se apaga de verdad.
+     */
+    fun nightNow(): Boolean {
+        val schedule = _state.value.schedule
+        if (!schedule.enabled || schedule.screenOff || !_state.value.clockValid) return false
+        _state.update { it.copy(nightUntil = ScreenSchedule.nextOn(schedule, it.now), peekUntil = null) }
+        return true
     }
 
     fun setBrightness(value: Float?) {

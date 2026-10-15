@@ -44,6 +44,13 @@ object ScreenSchedule {
     /** Fuera de horario y con el reloj nocturno en vez de apagar la pantalla. */
     fun isNight(schedule: Schedule, at: LocalDateTime): Boolean = schedule.enabled && !schedule.screenOff && !isOn(schedule, at)
 
+    /** Siguiente hora de encendido posterior a [now]. */
+    fun nextOn(schedule: Schedule, now: LocalDateTime): LocalDateTime =
+        (0L..7L).map { offset ->
+            val date = now.toLocalDate().plusDays(offset)
+            date.atStartOfDay().plusMinutes(window(schedule, date.dayOfWeek).first.toLong())
+        }.filter { it.isAfter(now) }.min()
+
     /** Siguiente encendido o apagado posterior a [now]. */
     fun nextChange(schedule: Schedule, now: LocalDateTime): LocalDateTime =
         (0L..7L).flatMap { offset ->

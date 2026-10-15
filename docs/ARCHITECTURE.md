@@ -20,7 +20,7 @@ Sin sesión iniciada se muestra el login (icono de Planify y formulario, centrad
 - **Tareas:** todas las listas del dashboard en columnas.
 
 Las tarjetas llevan una cabecera común (`CardHeader`): icono en un cuadro tintado, título y el total en una píldora del mismo color. En las gráficas del tiempo, los mm de lluvia van debajo del porcentaje. Las listas que no caben se desvanecen en el borde (`fadingScroll`) en vez de cortar el texto. Las tarjetas sin contenido muestran un estado vacío (`EmptyState`): icono en círculos del color de la tarjeta, título y una línea.
-- **Reloj nocturno** (`NightScreen`): fuera de horario, si no se ha elegido apagar la pantalla, la hora, la fecha y el tiempo de ahora sobre negro, estáticos, con el brillo al mínimo (`MainActivity` pone `screenBrightness` a 1/255 mientras `UiState.night`). Tocar enseña el dashboard 5 minutos (`peekUntil`).
+- **Reloj nocturno** (`NightScreen`): fuera de horario, si no se ha elegido apagar la pantalla, la hora, la fecha y el tiempo de ahora sobre negro, estáticos, con el brillo al mínimo (`MainActivity` pone `screenBrightness` a 1/255 mientras `UiState.night`). Tocar enseña el dashboard 5 minutos (`peekUntil`). La luna de la barra lateral también lo activa si está el reloj nocturno (`nightNow`, hasta que se toque o hasta el siguiente encendido); si no, apaga la pantalla con `lockNow()`.
 - **Ajustes:**
   - tres columnas que caben sin desplazamiento;
   - ubicación (Open-Meteo); horario de pantalla; brillo y **Sistema** (estado del Wi-Fi, Wi-Fi, Ajustes de Android, Cerrar sesión y Apagar o reiniciar);

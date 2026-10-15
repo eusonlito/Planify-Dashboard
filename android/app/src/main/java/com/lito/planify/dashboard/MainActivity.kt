@@ -44,7 +44,12 @@ class MainActivity : ComponentActivity() {
         hideSystemBars()
 
         val actions = DashboardActions(
-            sleep = { if (!Kiosk.sleep(this)) Toast.makeText(this, "Apagar requiere el modo quiosco (Device Owner)", Toast.LENGTH_LONG).show() },
+            // La luna: con el reloj nocturno activo pasa a él; si no, apaga la pantalla
+            sleep = {
+                if (!viewModel.nightNow() && !Kiosk.sleep(this)) {
+                    Toast.makeText(this, "Apagar requiere el modo quiosco (Device Owner)", Toast.LENGTH_LONG).show()
+                }
+            },
             openWifi = { openSystemSettings(Settings.ACTION_WIFI_SETTINGS) },
             openSettings = { openSystemSettings(Settings.ACTION_SETTINGS) },
             powerMenu = { if (!PowerMenuService.open()) Toast.makeText(this, "Falta activar el servicio de apagado (scripts/install.sh)", Toast.LENGTH_LONG).show() }
