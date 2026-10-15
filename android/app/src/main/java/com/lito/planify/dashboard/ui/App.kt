@@ -82,7 +82,8 @@ fun DashboardApp(
     onLogin: (String, String) -> Unit,
     onLoadWeek: (LocalDate) -> Unit,
     onSync: () -> Unit,
-    settings: SettingsCallbacks
+    settings: SettingsCallbacks,
+    onPeek: () -> Unit
 ) {
     var page by remember { mutableStateOf(Page.Today) }
     var lastTouch by remember { mutableLongStateOf(0L) }
@@ -111,6 +112,13 @@ fun DashboardApp(
     ) {
         if (state.token == null) {
             LoginScreen(state, onLogin, actions.openWifi)
+            return@Box
+        }
+        if (state.night) {
+            NightScreen(state, onWake = {
+                page = Page.Today
+                onPeek()
+            })
             return@Box
         }
         Row(Modifier.fillMaxSize()) {

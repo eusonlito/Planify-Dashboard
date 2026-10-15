@@ -10,7 +10,12 @@ data class Schedule(
     val weekdayOn: Int = 7 * 60,
     val weekdayOff: Int = 23 * 60,
     val weekendOn: Int = 8 * 60 + 30,
-    val weekendOff: Int = 23 * 60 + 30
+    val weekendOff: Int = 23 * 60 + 30,
+    /**
+     * Fuera de horario: false (por defecto) muestra el reloj nocturno con el brillo al mínimo; true apaga la pantalla.
+     * En negativo para que los horarios guardados antes de existir (Gson deja el campo a false) usen el reloj.
+     */
+    val screenOff: Boolean = false
 )
 
 /** Sesión y ajustes del dispositivo (SharedPreferences). Los datos descargados van en DiskCache. */

@@ -53,8 +53,14 @@ data class UiState(
     val loginError: String? = null,
     val loggingIn: Boolean = false,
     val geoResults: List<GeoResult> = emptyList(),
-    val geoSearching: Boolean = false
-)
+    val geoSearching: Boolean = false,
+    /** Tocar el reloj nocturno enseña el dashboard hasta esta hora. */
+    val peekUntil: LocalDateTime? = null
+) {
+    /** Fuera de horario con el reloj nocturno (y sin estar mirando el dashboard un momento). */
+    val night: Boolean
+        get() = clockValid && token != null && ScreenSchedule.isNight(schedule, now) && (peekUntil == null || !now.isBefore(peekUntil))
+}
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
     private val store = Store(application)
@@ -239,6 +245,11 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         store.schedule = schedule
         _state.update { it.copy(schedule = schedule) }
         ScreenSchedule.reschedule(getApplication())
+    }
+
+    /** Desde el reloj nocturno: el dashboard durante [ScreenSchedule.GRACE_MINUTES] y vuelta al reloj. */
+    fun peek() {
+        _state.update { it.copy(peekUntil = LocalDateTime.now().plusMinutes(ScreenSchedule.GRACE_MINUTES)) }
     }
 
     fun setBrightness(value: Float?) {

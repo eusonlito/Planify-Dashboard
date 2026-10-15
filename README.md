@@ -239,7 +239,7 @@ scripts/install.sh --build        # la primera vez, por USB
 ### Fase 8: arranque y energía
 
 - **Arranque personalizado** (`scripts/boot/install.sh`): sustituye el logo del bootloader y la animación de arranque por los de Planify. La partición FAT del bootloader **declara 128 MB pero mide 32 MB**, y justo detrás va `env`, así que nunca se monta en el marco: se edita una copia en el PC, se comprueba que ningún clúster cae fuera y se escribe verificando el hash. `--restore` vuelve a los de fábrica.
-- **Horario de pantalla:** la pantalla se apaga de verdad con `lockNow()` y se enciende con una alarma exacta. El táctil no la despierta (el botón de encendido sí). Encendida fuera de horario, se vuelve a apagar a los 5 minutos.
+- **Horario de pantalla:** fuera de horario, por defecto, la pantalla se queda con un **reloj nocturno** (hora, fecha y tiempo sobre negro, con la retroiluminación al mínimo); tocarlo enseña el dashboard 5 minutos. Si se desactiva en Ajustes, la pantalla se apaga de verdad con `lockNow()` y se enciende con una alarma exacta; el táctil no la despierta (el botón de encendido sí) y, encendida fuera de horario, se vuelve a apagar a los 5 minutos.
 - **Sin suspensión del kernel:** el script de arranque deja un wakelock del kernel (`/sys/power/wake_lock`), porque en esta placa la suspensión está rota (ver [lo que aprendimos](#lo-que-aprendimos)).
 
 ### Fase 9: primer uso
@@ -268,7 +268,8 @@ Barra lateral con Hoy, Calendario, Tiempo, Tareas, sincronizar, Ajustes y apagar
 | **Calendario** | Semana a semana (deslizando): el tiempo de cada día, los eventos, una banda aparte para las rutinas y los colores de cada persona |
 | **Tiempo** | 24 horas y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
 | **Tareas** | Todas las listas elegidas, en columnas |
-| **Ajustes** | Ubicación del tiempo (Open-Meteo), horario de pantalla, brillo y Sistema: estado del Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar |
+| **Reloj nocturno** | Fuera de horario: hora, fecha y tiempo sobre negro con el brillo al mínimo; tocarlo enseña el dashboard 5 minutos |
+| **Ajustes** | Ubicación del tiempo (Open-Meteo), horario de pantalla (con reloj nocturno o apagado), brillo y Sistema: estado del Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar |
 
 Por dentro (detalle en [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)):
 - **Píxeles nativos:** la app fija `Density(1f)`, así que todo se diseña en los 1920×1200 píxeles del panel (1 dp = 1 px), sin tocar la densidad del sistema.

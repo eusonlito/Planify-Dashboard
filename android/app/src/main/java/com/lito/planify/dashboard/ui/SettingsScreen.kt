@@ -154,12 +154,14 @@ private fun LocationSection(state: UiState, callbacks: SettingsCallbacks) {
 @Composable
 private fun ScheduleSection(schedule: Schedule, onChange: (Schedule) -> Unit) {
     Section("Horario de pantalla") {
-        Toggle("Apagar fuera de horario", schedule.enabled) { onChange(schedule.copy(enabled = it)) }
+        Toggle("Horario de pantalla", schedule.enabled) { onChange(schedule.copy(enabled = it)) }
         if (schedule.enabled) {
+            Toggle("Reloj nocturno", !schedule.screenOff) { onChange(schedule.copy(screenOff = !it)) }
             WindowRow("Lunes a viernes", schedule.weekdayOn, schedule.weekdayOff) { on, off -> onChange(schedule.copy(weekdayOn = on, weekdayOff = off)) }
             WindowRow("Sábado y domingo", schedule.weekendOn, schedule.weekendOff) { on, off -> onChange(schedule.copy(weekendOn = on, weekendOff = off)) }
             Text(
-                "Fuera de horario la pantalla se apaga. El táctil no la despierta: usa el botón de encendido (se vuelve a apagar a los 5 minutos).",
+                if (schedule.screenOff) "Fuera de horario la pantalla se apaga. El táctil no la despierta: usa el botón de encendido (se vuelve a apagar a los 5 minutos)."
+                else "Fuera de horario se queda un reloj con el brillo al mínimo. Tócalo para ver el dashboard durante 5 minutos.",
                 style = Type.Small,
                 modifier = Modifier.padding(top = 24.dp)
             )

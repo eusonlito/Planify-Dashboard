@@ -17,9 +17,10 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 /**
- * Enciende y apaga la pantalla según el horario. Apagar es `lockNow()` (Device Owner, sin keyguard);
- * encender, un wakelock que despierta la pantalla y trae la actividad al frente.
- * Si alguien la enciende con el botón fuera de horario, se vuelve a apagar a los [GRACE_MINUTES].
+ * Enciende y apaga la pantalla según el horario. Fuera de horario, por defecto la pantalla no se apaga: la app
+ * muestra el reloj nocturno con el brillo al mínimo ([isNight]). Con [Schedule.screenOff] se apaga de verdad con
+ * `lockNow()` (Device Owner, sin keyguard); encender es un wakelock que despierta la pantalla y trae la actividad al
+ * frente. Si alguien la enciende con el botón fuera de horario, se vuelve a apagar a los [GRACE_MINUTES].
  * Mientras el reloj no sea válido (el RTC del marco no guarda la hora: arranca en la fecha de fábrica hasta que
  * llega la hora por NTP) no se apaga nunca; al cambiar la hora (TIME_SET) se vuelve a programar.
  */
@@ -40,6 +41,9 @@ object ScreenSchedule {
         return minute in on until off
     }
 
+    /** Fuera de horario y con el reloj nocturno en vez de apagar la pantalla. */
+    fun isNight(schedule: Schedule, at: LocalDateTime): Boolean = schedule.enabled && !schedule.screenOff && !isOn(schedule, at)
+
     /** Siguiente encendido o apagado posterior a [now]. */
     fun nextChange(schedule: Schedule, now: LocalDateTime): LocalDateTime =
         (0L..7L).flatMap { offset ->
@@ -58,7 +62,7 @@ object ScreenSchedule {
 
         val now = LocalDateTime.now()
         val screenOn = context.getSystemService(PowerManager::class.java).isInteractive
-        val next = if (screenOn && !isOn(schedule, now)) now.plusMinutes(GRACE_MINUTES) else nextChange(schedule, now)
+        val next = if (schedule.screenOff && screenOn && !isOn(schedule, now)) now.plusMinutes(GRACE_MINUTES) else nextChange(schedule, now)
         val at = next.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarms.canScheduleExactAlarms()) {
@@ -71,7 +75,11 @@ object ScreenSchedule {
     /** Aplica el estado que toca ahora mismo. */
     fun apply(context: Context) {
         val schedule = Store(context).schedule
-        if (!clockValid() || isOn(schedule, LocalDateTime.now())) wake(context) else Kiosk.sleep(context)
+        when {
+            !clockValid() || isOn(schedule, LocalDateTime.now()) -> wake(context)
+            schedule.screenOff -> Kiosk.sleep(context)
+            // Reloj nocturno: la app cambia sola con la hora; la pantalla se queda como esté
+        }
     }
 
     @Suppress("DEPRECATION") // SCREEN_BRIGHT + ACQUIRE_CAUSES_WAKEUP es la única forma de encender la pantalla desde una alarma.

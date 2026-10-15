@@ -39,4 +39,12 @@ class ScreenScheduleTest {
         // Viernes noche → sábado 08:30
         assertEquals(saturday.withHour(8).withMinute(30), ScreenSchedule.nextChange(schedule, saturday.minusDays(1).withHour(23)))
     }
+
+    @Test
+    fun nightClockReplacesTheScreenOffOutsideTheWindow() {
+        assertTrue(ScreenSchedule.isNight(schedule, wednesday.withHour(23)))
+        assertFalse(ScreenSchedule.isNight(schedule, wednesday.withHour(12)))
+        assertFalse(ScreenSchedule.isNight(schedule.copy(screenOff = true), wednesday.withHour(23)))
+        assertFalse(ScreenSchedule.isNight(Schedule(enabled = false), wednesday.withHour(3)))
+    }
 }

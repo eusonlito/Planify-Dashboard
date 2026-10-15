@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
             // Se diseña en píxeles nativos del panel (1920×1200): 1 dp = 1 sp = 1 px.
             CompositionLocalProvider(LocalDensity provides Density(density = 1f, fontScale = 1f)) {
                 ProvideIconClock {
-                    DashboardApp(state, actions, viewModel::login, viewModel::loadWeek, viewModel::syncAll, settings)
+                    DashboardApp(state, actions, viewModel::login, viewModel::loadWeek, viewModel::syncAll, settings, viewModel::peek)
                 }
             }
         }
@@ -72,7 +72,8 @@ class MainActivity : ComponentActivity() {
         }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.map { it.brightness }.distinctUntilChanged().collect { value ->
+                // El reloj nocturno va con el brillo al mínimo; el resto, con el elegido en Ajustes (o el del sistema)
+                viewModel.state.map { if (it.night) NIGHT_BRIGHTNESS else it.brightness }.distinctUntilChanged().collect { value ->
                     window.attributes = window.attributes.apply {
                         screenBrightness = value ?: WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
                     }
@@ -99,6 +100,11 @@ class MainActivity : ComponentActivity() {
     private fun openSystemSettings(action: String) {
         startActivity(Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
         ReturnButton.show(this)
+    }
+
+    private companion object {
+        /** El paso más bajo de la retroiluminación (1 de 255): lo justo para leer el reloj nocturno a oscuras. */
+        const val NIGHT_BRIGHTNESS = 1f / 255f
     }
 
     private fun hideSystemBars() {
