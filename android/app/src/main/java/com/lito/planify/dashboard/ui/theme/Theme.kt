@@ -35,7 +35,8 @@ val Geist = FontFamily(
     Font(R.font.geist_light, FontWeight.Light),
     Font(R.font.geist_regular, FontWeight.Normal),
     Font(R.font.geist_medium, FontWeight.Medium),
-    Font(R.font.geist_semibold, FontWeight.SemiBold)
+    Font(R.font.geist_semibold, FontWeight.SemiBold),
+    Font(R.font.geist_bold, FontWeight.Bold)
 )
 
 val GeistMono = FontFamily(

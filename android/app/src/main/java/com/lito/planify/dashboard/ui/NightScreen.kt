@@ -24,7 +24,8 @@ import java.time.format.TextStyle
 
 /**
  * Reloj nocturno: fuera de horario, en vez de apagar la pantalla, la hora, la fecha y el tiempo de ahora en el centro,
- * sobre negro y con el brillo al mínimo (lo pone MainActivity). Todo estático: solo cambia una vez por minuto.
+ * en blanco sobre negro (con el brillo al mínimo hace falta todo el contraste) y la hora en negrita. El brillo lo pone
+ * MainActivity. Todo estático: solo cambia una vez por minuto.
  * Tocar en cualquier sitio enseña el dashboard unos minutos.
  */
 @Composable
@@ -40,11 +41,11 @@ fun NightScreen(state: UiState, onWake: () -> Unit) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 now.format(HourMinute),
-                style = Type.Clock.copy(fontSize = 300.sp, lineHeight = 300.sp, letterSpacing = (-12).sp, color = NightInk, fontFeatureSettings = "tnum")
+                style = Type.Clock.copy(fontSize = 300.sp, lineHeight = 300.sp, letterSpacing = (-10).sp, fontWeight = FontWeight.Bold, color = Color.White, fontFeatureSettings = "tnum")
             )
             Text(
                 "${now.toLocalDate().weekdayName()} · ${now.dayOfMonth} ${now.month.getDisplayName(TextStyle.FULL, Spanish)}".uppercase(Spanish),
-                style = Type.Mono.copy(fontFamily = GeistMono, fontSize = 30.sp, letterSpacing = 8.sp, color = NightSoft),
+                style = Type.Mono.copy(fontFamily = GeistMono, fontSize = 30.sp, letterSpacing = 8.sp, color = Color.White),
                 maxLines = 1,
                 modifier = Modifier.padding(top = 20.dp)
             )
@@ -57,14 +58,10 @@ fun NightScreen(state: UiState, onWake: () -> Unit) {
                     WeatherIcon(current.weather_code, current.is_day == 1, size = 80)
                     Text(
                         current.temperature_2m.degrees(),
-                        style = Type.Huge.copy(fontSize = 84.sp, lineHeight = 84.sp, letterSpacing = (-2).sp, fontWeight = FontWeight.Light, color = NightInk)
+                        style = Type.Huge.copy(fontSize = 84.sp, lineHeight = 84.sp, letterSpacing = (-2).sp, fontWeight = FontWeight.Light, color = Color.White)
                     )
                 }
             }
         }
     }
 }
-
-/** Con el brillo al mínimo hace falta contraste: casi blanco cálido para lo principal, gris para la fecha. */
-private val NightInk = Color(0xFFEDE6DC)
-private val NightSoft = Color(0xFF8F877D)
