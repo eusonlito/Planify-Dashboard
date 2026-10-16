@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
@@ -161,8 +160,8 @@ private const val RAIN_DAY_FULL_MM = 30.0
 /**
  * Barra de lluvia sobre [baseline], centrada en [x], solo si llueve algo (0,1 mm). El alto es la cantidad, en raíz
  * cuadrada para que se vea la floja y no se dispare la fuerte, llena a [full] mm (a partir de ahí, un azul más
- * intenso). El relleno es la probabilidad, en tres niveles que se leen sin número: maciza desde el 70 % (segura), a
- * rayas del 40 al 69 % (probable) y solo el contorno por debajo (posible). Encima, [amount].
+ * intenso). La opacidad del relleno es la probabilidad: maciza al 100 % y vacía al 0 %, con un contorno suave
+ * siempre. Encima, [amount].
  */
 private fun DrawScope.drawRain(
     measurer: TextMeasurer, x: Float, baseline: Float, maxHeight: Float, mm: Double, chance: Int, full: Double,
@@ -177,26 +176,11 @@ private fun DrawScope.drawRain(
     val shape = Path().apply {
         addRoundRect(RoundRect(Rect(topLeft, Size(width, height)), topLeft = corner, topRight = corner, bottomRight = CornerRadius.Zero, bottomLeft = CornerRadius.Zero))
     }
-    when {
-        chance >= 70 -> drawPath(shape, Brush.verticalGradient(listOf(color, color.copy(alpha = 0.6f)), startY = topLeft.y, endY = baseline))
-        chance >= 40 -> {
-            clipPath(shape) {
-                drawRect(color.copy(alpha = 0.08f), topLeft, Size(width, height))
-                // Rayas a 45°, de abajo a la izquierda hacia arriba a la derecha
-                var start = topLeft.x - height
-                while (start < topLeft.x + width) {
-                    drawLine(color.copy(alpha = 0.45f), Offset(start, baseline), Offset(start + height, topLeft.y), strokeWidth = 3f)
-                    start += 9f
-                }
-            }
-            drawPath(shape, color.copy(alpha = 0.45f), style = Stroke(width = 2f))
-        }
-        else -> {
-            // Posible: solo un contorno suave
-            drawPath(shape, color.copy(alpha = 0.06f))
-            drawPath(shape, color.copy(alpha = 0.35f), style = Stroke(width = 2f))
-        }
-    }
+    // Relleno con la opacidad de la probabilidad (100 % → maciza, 0 % → vacía) y un contorno suave para que la barra
+    // se vea aunque sea poco probable
+    val fill = (chance / 100f).coerceIn(0f, 1f)
+    drawPath(shape, color.copy(alpha = fill))
+    drawPath(shape, color.copy(alpha = 0.35f), style = Stroke(width = 2f))
     val label = measurer.measure(amount, amountStyle)
     drawText(label, topLeft = Offset(x - label.size.width / 2, baseline - height - 6 - label.size.height))
 }
@@ -232,7 +216,7 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
     val rain = points.map { hourly.rainAt(it) }
     val measurer = rememberTextMeasurer()
     val tempStyle = Type.Small.copy(color = Palette.Ink, fontWeight = FontWeight.Medium)
-    // Con columnas estrechas (Hoy), la temperatura de todas las horas, más pequeña y sin "°", para que se vea el pico
+    // La temperatura de cada hora, sin "°"; con columnas estrechas (Hoy), más pequeña, para que se vea el pico
     val narrowTempStyle = tempStyle.copy(fontSize = 17.sp)
     // Los mm, pequeños para no saturar la gráfica; en compacto (Hoy), aún más
     val mmStyle = Type.Tiny.copy(color = Palette.Rain, fontWeight = FontWeight.SemiBold, fontSize = if (compact) 14.sp else 16.sp)
@@ -285,7 +269,7 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
                 drawCircle(Color.White, 10f, center)
                 drawCircle(Palette.Warm, 7f, center)
                 val narrow = column < 60f
-                val label = measurer.measure(if (narrow) "${temps[i].roundToInt()}" else "${temps[i].roundToInt()}°", if (narrow) narrowTempStyle else tempStyle)
+                val label = measurer.measure("${temps[i].roundToInt()}", if (narrow) narrowTempStyle else tempStyle)
                 drawText(label, topLeft = Offset(center.x - label.size.width / 2, center.y - label.size.height - 16))
 
                 val (mm, chance) = rain[i]

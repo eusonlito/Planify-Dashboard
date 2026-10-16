@@ -141,12 +141,12 @@ private fun NextCard(event: Event, now: LocalDateTime) {
             )
             Text(
                 relativeBadge(now, event.at),
-                style = Type.Small.copy(color = Color.White, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp),
+                style = Type.Tiny.copy(color = Color.White, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp),
                 maxLines = 1,
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
-                    .padding(horizontal = 16.dp, vertical = 5.dp)
+                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(18.dp))
+                    .padding(horizontal = 14.dp, vertical = 4.dp)
             )
         }
         Text(event.title, style = Type.Large.copy(color = Color.White, fontWeight = FontWeight.Medium), maxLines = 2, overflow = TextOverflow.Ellipsis)
