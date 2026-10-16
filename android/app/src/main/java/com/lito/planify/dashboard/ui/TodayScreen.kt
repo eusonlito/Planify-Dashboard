@@ -98,7 +98,7 @@ private fun Card(modifier: Modifier, content: @Composable ColumnScope.() -> Unit
 private fun ClockColumn(state: UiState, modifier: Modifier) {
     val now = state.now
     val today = now.toLocalDate()
-    val next = state.content?.events.orEmpty().firstOrNull { !it.at.isBefore(now) }
+    val next = nextEvent(state.content?.events.orEmpty(), now)
     Column(modifier) {
         // Hora y fecha, centradas en el espacio que deja la tarjeta del siguiente evento
         Column(Modifier.fillMaxWidth().weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -114,16 +114,16 @@ private fun ClockColumn(state: UiState, modifier: Modifier) {
     }
 }
 
-/** Próximo evento en una tarjeta del color de su calendario, con la cuenta atrás grande. */
+/** El siguiente evento: el primero que aún no ha empezado. Va en su tarjeta y no se repite en la lista de próximos. */
+private fun nextEvent(events: List<Event>, now: LocalDateTime): Event? = events.firstOrNull { !it.at.isBefore(now) }
+
+/**
+ * Próximo evento en una tarjeta del color de su calendario. Arriba, sus personas y, a la derecha, lo que falta en una
+ * píldora con el mismo formato que la lista de próximos eventos; debajo, el título y el día y la hora.
+ */
 @Composable
 private fun NextCard(event: Event, now: LocalDateTime) {
     val color = parseColor(event.calendar_color, Palette.Accent)
-    val minutes = Duration.between(now, event.at).toMinutes()
-    val big = when {
-        minutes < 60 -> "${minutes.coerceAtLeast(0)} min"
-        minutes < 24 * 60 -> "${minutes / 60}h ${(minutes % 60).toString().padStart(2, '0')}m"
-        else -> null
-    }
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
@@ -131,29 +131,30 @@ private fun NextCard(event: Event, now: LocalDateTime) {
             .background(color, RoundedCornerShape(32.dp))
             .padding(horizontal = 34.dp, vertical = 28.dp)
     ) {
-        Text(
-            listOfNotNull("Siguiente", event.persons?.joinToString(", ") { it.name }?.takeIf { it.isNotEmpty() }).joinToString(" · ").uppercase(Spanish),
-            style = Type.Label.copy(color = Color.White.copy(alpha = 0.9f)),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Row(verticalAlignment = Alignment.Bottom) {
-            Column(Modifier.weight(1f)) {
-                Text(event.title, style = Type.Large.copy(color = Color.White, fontWeight = FontWeight.Medium), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(
-                    "${relativeDay(event.at.toLocalDate(), now.toLocalDate())} · ${event.at.format(HourMinute)}${event.calendar_name?.let { " · $it" } ?: ""}",
-                    style = Type.Small.copy(color = Color.White.copy(alpha = 0.85f)),
-                    maxLines = 1
-                )
-            }
-            if (big != null) {
-                Text(
-                    big,
-                    style = Type.Huge.copy(color = Color.White, fontWeight = FontWeight.Light, fontSize = Type.Title.fontSize * 1.3f, lineHeight = Type.Title.fontSize * 1.3f),
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                event.persons.orEmpty().joinToString(", ") { it.name }.uppercase(Spanish),
+                style = Type.Label.copy(color = Color.White.copy(alpha = 0.9f)),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                relativeBadge(now, event.at),
+                style = Type.Small.copy(color = Color.White, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp),
+                maxLines = 1,
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
+                    .padding(horizontal = 16.dp, vertical = 5.dp)
+            )
         }
+        Text(event.title, style = Type.Large.copy(color = Color.White, fontWeight = FontWeight.Medium), maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(
+            "${relativeDay(event.at.toLocalDate(), now.toLocalDate())} · ${event.at.format(HourMinute)}",
+            style = Type.Small.copy(color = Color.White.copy(alpha = 0.85f)),
+            maxLines = 1
+        )
     }
 }
 
@@ -161,12 +162,15 @@ private fun NextCard(event: Event, now: LocalDateTime) {
 
 /**
  * Próximos eventos con el formato del widget de la app: barra del color del calendario, "MIÉ 14 OCT · 16:00"
- * con el tiempo que falta en una píldora, y el título debajo. Los ya pasados de hoy, en gris.
+ * con el tiempo que falta en una píldora, y el título debajo. Los ya pasados de hoy, en gris. Sin el siguiente, que ya
+ * está en su tarjeta.
  */
 @Composable
 private fun EventsCard(state: UiState, modifier: Modifier) {
     val now = state.now
-    val events = state.content?.events.orEmpty()
+    val all = state.content?.events.orEmpty()
+    val next = nextEvent(all, now)
+    val events = all.filter { it !== next }
     Card(modifier) {
         CardHeader("Próximos eventos", Icons.Outlined.Event, Palette.Rain, count = events.count { !it.at.isBefore(now) })
         if (events.isEmpty()) {

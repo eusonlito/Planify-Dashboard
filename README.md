@@ -35,7 +35,7 @@ Este proyecto está conectado con la aplicación y el backend de Planify:
 Todas las secciones de la app, en el emulador con las medidas del marco (1920×1200) y datos de demostración.
 
 ### Hoy
-La pantalla principal: reloj de paletas, el siguiente evento con cuenta atrás, el tiempo (ahora, las próximas 24 horas con la hora actual marcada y los próximos días), los próximos eventos, las rutinas de hoy y las tareas.
+La pantalla principal: reloj de paletas, el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días), los próximos eventos, las rutinas de hoy y las tareas.
 
 <img src="docs/images/today.png" alt="Hoy" />
 
@@ -66,7 +66,7 @@ Ubicación del tiempo (búsqueda en Open-Meteo), horario de pantalla (entre sema
 <img src="docs/images/settings.png" alt="Ajustes" />
 
 ### Reloj nocturno
-Fuera de horario, o al pulsar la luna de la barra lateral, la pantalla no se apaga: queda la hora en grande, la fecha y el tiempo de ahora en blanco sobre negro, con la retroiluminación al mínimo (1 de 255). Tocarlo enseña el dashboard; fuera de horario, durante 5 minutos.
+Fuera de horario, o al pulsar la luna de la barra lateral, la pantalla no se apaga: queda la hora en grande, la fecha y el tiempo de ahora, en negrita y en blanco sobre negro (también el icono, que en color apenas se veía), con la retroiluminación al mínimo (1 de 255). Tocarlo enseña el dashboard; fuera de horario, durante 5 minutos.
 
 <img src="docs/images/night.png" alt="Reloj nocturno" />
 
@@ -269,7 +269,7 @@ Barra lateral con Hoy, Calendario, Tiempo, Tareas, sincronizar, Ajustes y apagar
 
 | Pantalla | Contenido |
 |---|---|
-| **Hoy** | Reloj de paletas (split-flap), el siguiente evento con cuenta atrás, el tiempo (ahora, 24 horas con la hora actual marcada y los próximos días, que se deslizan), próximos eventos, rutinas de hoy y tareas |
+| **Hoy** | Reloj de paletas (split-flap), el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días, que se deslizan), próximos eventos, rutinas de hoy y tareas |
 | **Calendario** | Semana a semana (deslizando): el tiempo de cada día, los eventos, una banda aparte para las rutinas y los colores de cada persona |
 | **Tiempo** | 24 horas y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
 | **Tareas** | Todas las listas elegidas, en columnas |
