@@ -45,14 +45,14 @@ La semana de lunes a domingo, deslizando entre semanas: el tiempo de cada día, 
 <img src="docs/images/calendar.png" alt="Calendario" />
 
 ### Tiempo
-Dos páginas que se deslizan. La primera: el día de hoy por horas, de 00 a 23 con la hora actual marcada, y 7 días. La segunda: la semana siguiente en gráfica (máximas, mínimas, lluvia y viento). Tocar cualquier día abre sus 24 horas con su propia cabecera.
+Dos páginas que se deslizan. La primera: el día de hoy por horas, de 00 a 23 con la hora actual marcada, y 7 días. La segunda: la semana siguiente en gráfica (máximas, mínimas, lluvia y viento). Tocar cualquier día abre sus 24 horas con su propia cabecera. La lluvia se dibuja por cantidad: el alto de la barra son los mm de esa hora, y el relleno, la probabilidad (maciza si es segura, a rayas si es probable y solo el contorno si es posible).
 
 <p align="center">
   <img src="docs/images/weather.png" width="49%" alt="Tiempo: hoy por horas y 7 días" />
   <img src="docs/images/weather-week.png" width="49%" alt="Tiempo: la semana siguiente" />
 </p>
 <p align="center">
-  <img src="docs/images/weather-day.png" width="49%" alt="Tiempo: un día de la semana siguiente por horas" />
+  <img src="docs/images/weather-day.png" width="49%" alt="Tiempo: un día de lluvia por horas" />
 </p>
 
 ### Tareas
