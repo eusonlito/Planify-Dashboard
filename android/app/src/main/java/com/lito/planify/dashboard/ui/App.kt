@@ -38,21 +38,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lito.planify.dashboard.UiState
 import com.lito.planify.dashboard.ui.theme.Palette
 import com.lito.planify.dashboard.ui.theme.Type
-import kotlinx.coroutines.delay
 import java.time.LocalDate
+import kotlinx.coroutines.delay
 
 enum class Page(val label: String, val icon: ImageVector) {
     Today("Hoy", Icons.Outlined.Today),
@@ -230,6 +231,8 @@ fun PillButton(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .height(84.dp)
+            // Recortado a su forma, para que el efecto al pulsar no salga cuadrado
+            .clip(RoundedCornerShape(42.dp))
             .background(
                 when {
                     !enabled -> Palette.Line

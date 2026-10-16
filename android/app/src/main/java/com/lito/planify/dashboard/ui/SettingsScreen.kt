@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -144,6 +146,7 @@ private fun LocationSection(state: UiState, callbacks: SettingsCallbacks) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
                     .clickable {
                         query = ""
                         callbacks.onSelectLocation(result)
@@ -217,6 +220,7 @@ private fun BrightnessSection(brightness: Float?, onChange: (Float?) -> Unit) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(84.dp)
+                    .clip(CircleShape)
                     .background(if (auto) Palette.Ink else Control, CircleShape)
                     .clickable { onChange(if (auto) manual else null) }
             ) { Text("A", style = Type.Body.copy(color = if (auto) Palette.Card else Palette.Ink, fontWeight = FontWeight.SemiBold)) }
@@ -322,7 +326,8 @@ private fun WifiCard() {
 private fun Toggle(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().clickable { onChange(!checked) }.padding(vertical = 8.dp)
+        // Sin efecto al pulsar (sería un recuadro sobre toda la fila): el propio interruptor ya cambia
+        modifier = Modifier.fillMaxWidth().clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onChange(!checked) }.padding(vertical = 8.dp)
     ) {
         Text(label, style = Type.Body, modifier = Modifier.weight(1f))
         Box(
@@ -343,6 +348,7 @@ private fun RoundButton(label: String, enabled: Boolean, onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(56.dp)
+            .clip(CircleShape)
             .background(if (enabled) Control else Palette.Card, CircleShape)
             .border(2.dp, if (enabled) Control else Palette.CardBorder, CircleShape)
             .clickable(enabled = enabled, onClick = onClick)
