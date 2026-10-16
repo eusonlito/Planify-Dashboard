@@ -137,7 +137,7 @@ fun Path.smoothThrough(xs: List<Float>, ys: List<Float>) {
     }
 }
 
-/** Horas que enseñan las gráficas: [HOURS_BEFORE] antes de la actual, la actual y las siguientes, hasta 24. */
+/** Sin [day] (si la previsión no trae las horas de hoy): [HOURS_BEFORE] antes de la actual y las siguientes, hasta 24. */
 const val HOURS_BEFORE = 4
 const val HOURS_SHOWN = 24
 
@@ -145,7 +145,7 @@ const val HOURS_SHOWN = 24
  * Previsión hora a hora: las [HOURS_BEFORE] anteriores, la actual (marcada con una línea) y las siguientes hasta
  * [HOURS_SHOWN]: curva de temperatura con relleno y su valor; barras de probabilidad de lluvia con su %, solo donde
  * llueve; debajo, el icono del tiempo de cada hora ([iconSize], estático) y, abajo del todo, la hora con dos dígitos.
- * Con [day], las 24 horas de ese día (de 00 a 23) en vez de las de ahora.
+ * Con [day], que es lo normal (las tarjetas pasan hoy o el día tocado), las 24 horas de ese día, de 00 a 23.
  */
 @Composable
 fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = Modifier, iconSize: Int = 36, day: LocalDate? = null) {
@@ -260,7 +260,7 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
 /**
  * Tarjeta del tiempo: icono, temperatura y estado; lluvia, humedad y viento; la previsión hora a hora
  * ([HourlyForecast]) y los próximos [days] días en columnas. [compact] reduce la cabecera y los
- * días para dejar sitio a la gráfica cuando la tarjeta es baja (Hoy); ahí la gráfica enseña el día de hoy entero.
+ * días para dejar sitio a la gráfica cuando la tarjeta es baja (Hoy). La gráfica enseña el día de hoy entero.
  * Al tocar otro día, la cabecera y la gráfica pasan a ese día por horas; tocarlo de nuevo, o hoy, vuelve a
  * ahora, y también vuelve solo a los 2 minutos.
  */
@@ -289,8 +289,8 @@ fun WeatherCard(
             .padding(horizontal = 36.dp, vertical = 28.dp)
     ) {
         WeatherHeader(forecast, location, today, selected, compact)
-        // En Hoy, la gráfica es siempre el día entero (de 00 a 23) y la banda de la hora actual avanza por ella
-        val hours = selected ?: today.takeIf { compact && forecast.hasHours(it) }
+        // La gráfica es siempre un día entero (de 00 a 23): hoy, con la banda de la hora actual avanzando por ella
+        val hours = selected ?: today.takeIf { forecast.hasHours(it) }
         HourlyForecast(forecast, now, Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp), iconSize = if (compact) 28 else 36, day = hours)
         // La gráfica del día y los días quedan separados por una línea
         Hairline(Modifier.padding(top = if (compact) 12.dp else 18.dp, bottom = if (compact) 12.dp else 18.dp))

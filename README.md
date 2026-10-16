@@ -45,10 +45,10 @@ La semana de lunes a domingo, deslizando entre semanas: el tiempo de cada día, 
 <img src="docs/images/calendar.png" alt="Calendario" />
 
 ### Tiempo
-Dos páginas que se deslizan. La primera: las próximas 24 horas y 7 días. La segunda: la semana siguiente en gráfica (máximas, mínimas, lluvia y viento). Tocar cualquier día abre sus 24 horas con su propia cabecera.
+Dos páginas que se deslizan. La primera: el día de hoy por horas, de 00 a 23 con la hora actual marcada, y 7 días. La segunda: la semana siguiente en gráfica (máximas, mínimas, lluvia y viento). Tocar cualquier día abre sus 24 horas con su propia cabecera.
 
 <p align="center">
-  <img src="docs/images/weather.png" width="49%" alt="Tiempo: 24 horas y 7 días" />
+  <img src="docs/images/weather.png" width="49%" alt="Tiempo: hoy por horas y 7 días" />
   <img src="docs/images/weather-week.png" width="49%" alt="Tiempo: la semana siguiente" />
 </p>
 <p align="center">
@@ -271,7 +271,7 @@ Barra lateral con Hoy, Calendario, Tiempo, Tareas, sincronizar, Ajustes y apagar
 |---|---|
 | **Hoy** | Reloj de paletas (split-flap), el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días, que se deslizan), próximos eventos, rutinas de hoy y tareas |
 | **Calendario** | Semana a semana (deslizando): el tiempo de cada día, los eventos, una banda aparte para las rutinas y los colores de cada persona |
-| **Tiempo** | 24 horas y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
+| **Tiempo** | Hoy de 00 a 23 h y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
 | **Tareas** | Todas las listas elegidas, en columnas |
 | **Reloj nocturno** | Fuera de horario, o al pulsar la luna: hora, fecha y tiempo sobre negro con el brillo al mínimo; tocarlo enseña el dashboard |
 | **Ajustes** | Ubicación del tiempo (Open-Meteo), horario de pantalla (con reloj nocturno o apagado), brillo y Sistema: estado del Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar |
