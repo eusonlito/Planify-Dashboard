@@ -251,13 +251,15 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
             val maxT = maxOf(temps.max(), minT + 1)
             fun y(t: Double) = curveBottom - (curveBottom - curveTop) * ((t - minT) / (maxT - minT)).toFloat()
 
-            // Hora actual: una banda azul translúcida sobre la columna de la hora en punto (13:40 → las 13), detrás de la curva
+            // Hora actual: una banda translúcida sobre la columna de la hora en punto (13:40 → las 13), detrás de la curva;
+            // amarilla de día y gris de noche (según el is_day de esa hora)
             val current = Math.floorDiv(Duration.between(LocalDateTime.parse(hourly.time[points.first()], IsoMinute), now).toMinutes(), 60L * step).toInt()
             if (current in points.indices) {
                 val nowX = x(current)
                 val band = (column * 0.6f).coerceAtMost(36f)
+                val tint = if (hourly.is_day.getOrNull(points[current]) == 0) Palette.InkMuted else Palette.Warm
                 drawRoundRect(
-                    Brush.verticalGradient(listOf(Palette.Rain.copy(alpha = 0.18f), Palette.Rain.copy(alpha = 0.06f)), startY = 0f, endY = baseline),
+                    Brush.verticalGradient(listOf(tint.copy(alpha = 0.30f), tint.copy(alpha = 0.10f)), startY = 0f, endY = baseline),
                     topLeft = Offset(nowX - band / 2, 0f),
                     size = Size(band, baseline),
                     cornerRadius = CornerRadius(6f)
