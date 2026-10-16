@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -83,10 +84,10 @@ private const val LOOP_MS = 6_000L
 
 /**
  * Un icono de Meteocons, de fotogramas pre-renderizados ([MeteoconFrames]). [animated] lo mueve con el reloj
- * compartido; si no, es su primer fotograma.
+ * compartido; si no, es su primer fotograma. [colorFilter] cambia sus colores al pintarlo (fondo negro).
  */
 @Composable
-fun Meteocon(@RawRes icon: Int, size: Int, animated: Boolean = false, description: String? = null) {
+fun Meteocon(@RawRes icon: Int, size: Int, animated: Boolean = false, description: String? = null, colorFilter: ColorFilter? = null) {
     val context = LocalContext.current
     // Los Meteocons dejan mucho margen en su lienzo de 128: se dibujan más grandes que su hueco, centrados, para que
     // el dibujo ocupe lo mismo que un icono normal de ese tamaño.
@@ -103,7 +104,7 @@ fun Meteocon(@RawRes icon: Int, size: Int, animated: Boolean = false, descriptio
         contentAlignment = Alignment.Center
     ) {
         Canvas(Modifier.requiredSize(art)) {
-            if (frames.isNotEmpty()) drawImage(frames[clock.intValue % frames.size])
+            if (frames.isNotEmpty()) drawImage(frames[clock.intValue % frames.size], colorFilter = colorFilter)
         }
     }
 }
@@ -119,8 +120,8 @@ fun StaticMeteocon(@DrawableRes icon: Int, size: Int) {
 }
 
 @Composable
-fun WeatherIcon(code: Int?, day: Boolean = true, size: Int = 40, animated: Boolean = false) {
-    Meteocon(meteocon(code, day), size, animated, weatherText(code))
+fun WeatherIcon(code: Int?, day: Boolean = true, size: Int = 40, animated: Boolean = false, colorFilter: ColorFilter? = null) {
+    Meteocon(meteocon(code, day), size, animated, weatherText(code), colorFilter)
 }
 
 /**

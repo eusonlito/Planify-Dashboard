@@ -260,7 +260,7 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
 /**
  * Tarjeta del tiempo: icono, temperatura y estado; lluvia, humedad y viento; la previsión hora a hora
  * ([HourlyForecast]) y los próximos [days] días en columnas. [compact] reduce la cabecera y los
- * días para dejar sitio a la gráfica cuando la tarjeta es baja (Hoy).
+ * días para dejar sitio a la gráfica cuando la tarjeta es baja (Hoy); ahí la gráfica enseña el día de hoy entero.
  * Al tocar otro día, la cabecera y la gráfica pasan a ese día por horas; tocarlo de nuevo, o hoy, vuelve a
  * ahora, y también vuelve solo a los 2 minutos.
  */
@@ -289,7 +289,9 @@ fun WeatherCard(
             .padding(horizontal = 36.dp, vertical = 28.dp)
     ) {
         WeatherHeader(forecast, location, today, selected, compact)
-        HourlyForecast(forecast, now, Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp), iconSize = if (compact) 28 else 36, day = selected)
+        // En Hoy, la gráfica es siempre el día entero (de 00 a 23) y la banda de la hora actual avanza por ella
+        val hours = selected ?: today.takeIf { compact && forecast.hasHours(it) }
+        HourlyForecast(forecast, now, Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp), iconSize = if (compact) 28 else 36, day = hours)
         // La gráfica del día y los días quedan separados por una línea
         Hairline(Modifier.padding(top = if (compact) 12.dp else 18.dp, bottom = if (compact) 12.dp else 18.dp))
         if (compact) {

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,7 +25,7 @@ import java.time.format.TextStyle
 
 /**
  * Reloj nocturno: fuera de horario, en vez de apagar la pantalla, la hora, la fecha y el tiempo de ahora en el centro,
- * en blanco sobre negro (con el brillo al mínimo hace falta todo el contraste) y la hora en negrita. El brillo lo pone
+ * en blanco sobre negro y en negrita (con el brillo al mínimo hace falta todo el contraste). El brillo lo pone
  * MainActivity. Todo estático: solo cambia una vez por minuto.
  * Tocar en cualquier sitio enseña el dashboard unos minutos.
  */
@@ -45,7 +46,7 @@ fun NightScreen(state: UiState, onWake: () -> Unit) {
             )
             Text(
                 "${now.toLocalDate().weekdayName()} · ${now.dayOfMonth} ${now.month.getDisplayName(TextStyle.FULL, Spanish)}".uppercase(Spanish),
-                style = Type.Mono.copy(fontFamily = GeistMono, fontSize = 30.sp, letterSpacing = 8.sp, color = Color.White),
+                style = Type.Mono.copy(fontFamily = GeistMono, fontSize = 40.sp, letterSpacing = 10.sp, fontWeight = FontWeight.Bold, color = Color.White),
                 maxLines = 1,
                 modifier = Modifier.padding(top = 20.dp)
             )
@@ -55,13 +56,16 @@ fun NightScreen(state: UiState, onWake: () -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(44.dp),
                     modifier = Modifier.padding(top = 56.dp)
                 ) {
-                    WeatherIcon(current.weather_code, current.is_day == 1, size = 80)
+                    WeatherIcon(current.weather_code, current.is_day == 1, size = 110, colorFilter = NightIcon)
                     Text(
                         current.temperature_2m.degrees(),
-                        style = Type.Huge.copy(fontSize = 84.sp, lineHeight = 84.sp, letterSpacing = (-2).sp, fontWeight = FontWeight.Light, color = Color.White)
+                        style = Type.Huge.copy(fontSize = 84.sp, lineHeight = 84.sp, letterSpacing = (-2).sp, fontWeight = FontWeight.Bold, color = Color.White)
                     )
                 }
             }
         }
     }
 }
+
+/** El icono del tiempo, todo en blanco: sus colores, pensados para fondo claro, apenas se ven sobre negro. */
+private val NightIcon = ColorFilter.tint(Color.White)
