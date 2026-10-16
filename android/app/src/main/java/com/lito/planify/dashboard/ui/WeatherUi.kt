@@ -171,8 +171,7 @@ private fun DrawScope.drawRain(
 ) {
     if (mm < 0.1) return
     val label = measurer.measure(amount, amountStyle)
-    val base = label.size.height + 10f
-    val height = base + (maxHeight - base).coerceAtLeast(0f) * (minOf(mm, full) / full).toFloat()
+    val height = rainBarHeight(label.size.height.toFloat(), maxHeight, mm, full)
     val color = if (mm >= heavy) RainHeavy else Palette.Rain
     val topLeft = Offset(x - width / 2, baseline - height)
     // Esquinas redondeadas solo arriba: la barra sale recta de la línea base
@@ -189,6 +188,19 @@ private fun DrawScope.drawRain(
 }
 
 private val RainHeavy = Color(0xFF1D4ED8)
+
+/** Alto de una barra de lluvia: el justo para su número ([labelHeight]) más lo proporcional a [mm], hasta [maxHeight]. */
+private fun rainBarHeight(labelHeight: Float, maxHeight: Float, mm: Double, full: Double): Float {
+    val base = labelHeight + 10f
+    return base + (maxHeight - base).coerceAtLeast(0f) * (minOf(mm, full) / full).toFloat()
+}
+
+/**
+ * Alto que la curva de temperatura deja libre abajo para la lluvia: el de la barra más alta más un margen, o nada si no
+ * hay ninguna (así, sin lluvia, la curva usa todo el alto y se ve bien la diferencia entre la mínima y la máxima).
+ */
+private fun DrawScope.rainSpace(measurer: TextMeasurer, style: TextStyle, maxHeight: Float, maxMm: Double, full: Double): Float =
+    if (maxMm < 0.1) 0f else rainBarHeight(measurer.measure("0", style).size.height.toFloat(), maxHeight, maxMm, full) + 16f
 
 /**
  * Lluvia de la hora que empieza en la columna [i]: Open-Meteo da la de la hora anterior (la de las 06 es de 05 a 06),
@@ -231,10 +243,10 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
             fun x(i: Int) = column * i + column / 2
             val baseline = size.height - 2f
             val curveTop = 52f
-            // Con poco alto, la lluvia cede espacio para que la curva no se monte sobre las barras.
+            // Con poco alto, la lluvia cede espacio para que la curva no se monte sobre las barras (solo el que ocupan).
             // En Hoy la gráfica es baja: la lluvia se lleva más parte para que las barras se distingan
             val rainHeight = ((baseline - curveTop - 40f) * if (compact) 0.6f else 0.42f).coerceIn(0f, 200f)
-            val curveBottom = baseline - rainHeight - 40f
+            val curveBottom = baseline - rainSpace(measurer, mmStyle, rainHeight, rain.maxOf { it.first }, RAIN_FULL_MM) - 40f
             val minT = temps.min()
             val maxT = maxOf(temps.max(), minT + 1)
             fun y(t: Double) = curveBottom - (curveBottom - curveTop) * ((t - minT) / (maxT - minT)).toFloat()
@@ -501,7 +513,7 @@ fun DailyForecast(forecast: Forecast, dates: List<LocalDate>, modifier: Modifier
         val baseline = size.height - windHeight - 8f
         val rainHeight = (baseline * 0.32f).coerceAtMost(200f)
         val curveTop = 50f
-        val curveBottom = baseline - rainHeight - 60f
+        val curveBottom = baseline - rainSpace(measurer, mmStyle, rainHeight, mm.max(), RAIN_DAY_FULL_MM) - 60f
         val minT = lows.min()
         val maxT = maxOf(highs.max(), minT + 1)
         fun y(t: Double) = curveBottom - (curveBottom - curveTop) * ((t - minT) / (maxT - minT)).toFloat()
