@@ -61,7 +61,7 @@ Las tareas pendientes de las listas elegidas en la APP, una columna por lista.
 <img src="docs/images/tasks.png" alt="Tareas" />
 
 ### Ajustes
-Ubicación del tiempo (búsqueda en Open-Meteo), horario de pantalla (entre semana y fin de semana, con el interruptor «Reloj nocturno»: si se desactiva, fuera de horario la pantalla se apaga del todo), brillo y Sistema: estado del Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar.
+Ubicación del tiempo (búsqueda en Open-Meteo), horario de pantalla (entre semana y fin de semana, con el interruptor «Reloj nocturno»: si se desactiva, fuera de horario la pantalla se apaga del todo), brillo (un deslizador y «A» para el automático del sistema), Conexión (estado del Wi-Fi) y, en su propia caja, Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar.
 
 <img src="docs/images/settings.png" alt="Ajustes" />
 
@@ -274,7 +274,7 @@ Barra lateral con Hoy, Calendario, Tiempo, Tareas, sincronizar, Ajustes y apagar
 | **Tiempo** | Hoy de 00 a 23 h y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
 | **Tareas** | Todas las listas elegidas, en columnas |
 | **Reloj nocturno** | Fuera de horario, o al pulsar la luna: hora, fecha y tiempo sobre negro con el brillo al mínimo; tocarlo enseña el dashboard |
-| **Ajustes** | Ubicación del tiempo (Open-Meteo), horario de pantalla (con reloj nocturno o apagado), brillo y Sistema: estado del Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar |
+| **Ajustes** | Ubicación del tiempo (Open-Meteo), horario de pantalla (con reloj nocturno o apagado), brillo (deslizador o automático), Conexión (estado del Wi-Fi) y los botones de Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar |
 
 Por dentro (detalle en [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)):
 - **Píxeles nativos:** la app fija `Density(1f)`, así que todo se diseña en los 1920×1200 píxeles del panel (1 dp = 1 px), sin tocar la densidad del sistema.

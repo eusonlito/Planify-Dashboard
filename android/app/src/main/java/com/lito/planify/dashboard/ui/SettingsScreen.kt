@@ -1,8 +1,11 @@
 package com.lito.planify.dashboard.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,22 +23,28 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -54,10 +63,10 @@ import com.lito.planify.dashboard.data.WifiStatus
 import com.lito.planify.dashboard.data.readWifiStatus
 import com.lito.planify.dashboard.ui.theme.Palette
 import com.lito.planify.dashboard.ui.theme.Type
+import java.time.LocalTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.time.LocalTime
 
 class SettingsCallbacks(
     val onSearch: (String) -> Unit,
@@ -68,7 +77,8 @@ class SettingsCallbacks(
 )
 
 /**
- * Tres columnas, cada una en su caja, que caben enteras en pantalla, sin desplazamiento. Todos los botones, a lo ancho.
+ * Tres columnas que caben enteras en pantalla, sin desplazamiento; la de la derecha, en dos cajas (brillo y conexión, y
+ * los botones). Todos los botones, a lo ancho.
  * Dentro de las cajas (blancas) los controles van en crema ([Control]) para que se distingan.
  */
 @Composable
@@ -81,11 +91,14 @@ fun SettingsScreen(state: UiState, actions: DashboardActions, callbacks: Setting
             Panel(Modifier.weight(1f).fillMaxHeight()) {
                 ScheduleSection(state.schedule, callbacks.onSchedule)
             }
-            Panel(Modifier.weight(1f).fillMaxHeight()) {
-                BrightnessSection(state.brightness, callbacks.onBrightness)
-                Section("Sistema") {
+            // La columna de la derecha, en dos cajas: brillo y conexión arriba, y los botones abajo
+            Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(28.dp)) {
+                Panel(Modifier.fillMaxWidth().weight(1f)) {
+                    BrightnessSection(state.brightness, callbacks.onBrightness)
+                    Section("Conexión") { WifiCard() }
+                }
+                Panel(Modifier.fillMaxWidth()) {
                     Column(verticalArrangement = Arrangement.spacedBy(ButtonGap)) {
-                        WifiCard()
                         PillButton("Wi-Fi", Modifier.fillMaxWidth(), background = Control, onClick = actions.openWifi)
                         PillButton("Ajustes de Android", Modifier.fillMaxWidth(), background = Control, onClick = actions.openSettings)
                         PillButton("Cerrar sesión", Modifier.fillMaxWidth(), background = Control, onClick = callbacks.onLogout)
@@ -159,12 +172,6 @@ private fun ScheduleSection(schedule: Schedule, onChange: (Schedule) -> Unit) {
             Toggle("Reloj nocturno", !schedule.screenOff) { onChange(schedule.copy(screenOff = !it)) }
             WindowRow("Lunes a viernes", schedule.weekdayOn, schedule.weekdayOff) { on, off -> onChange(schedule.copy(weekdayOn = on, weekdayOff = off)) }
             WindowRow("Sábado y domingo", schedule.weekendOn, schedule.weekendOff) { on, off -> onChange(schedule.copy(weekendOn = on, weekendOff = off)) }
-            Text(
-                if (schedule.screenOff) "Fuera de horario la pantalla se apaga. El táctil no la despierta: usa el botón de encendido (se vuelve a apagar a los 5 minutos)."
-                else "Fuera de horario se queda un reloj con el brillo al mínimo. Tócalo para ver el dashboard durante 5 minutos.",
-                style = Type.Small,
-                modifier = Modifier.padding(top = 24.dp)
-            )
         }
     }
 }
@@ -196,16 +203,52 @@ private fun Stepper(minutes: Int, min: Int, max: Int, onChange: (Int) -> Unit) {
 
 @Composable
 private fun BrightnessSection(brightness: Float?, onChange: (Float?) -> Unit) {
+    // Último brillo manual, para volver a él al quitar el automático
+    var manual by remember { mutableFloatStateOf(brightness ?: 0.8f) }
+    val auto = brightness == null
     Section("Brillo") {
-        Column(verticalArrangement = Arrangement.spacedBy(ButtonGap)) {
-            listOf<Float?>(null, 0.2f, 0.4f, 0.6f, 0.8f, 1f).chunked(3).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
-                    row.forEach { value ->
-                        Choice(value?.let { "${(it * 100).toInt()}%" } ?: "Sistema", selected = brightness == value, modifier = Modifier.weight(1f)) { onChange(value) }
-                    }
-                }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            LevelSlider(manual, enabled = !auto, modifier = Modifier.weight(1f)) {
+                manual = it
+                onChange(it)
             }
+            // (A): brillo automático del sistema; con él, el deslizador queda desactivado
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(84.dp)
+                    .background(if (auto) Palette.Ink else Control, CircleShape)
+                    .clickable { onChange(if (auto) manual else null) }
+            ) { Text("A", style = Type.Body.copy(color = if (auto) Palette.Card else Palette.Ink, fontWeight = FontWeight.SemiBold)) }
         }
+    }
+}
+
+/** Brillo mínimo del deslizador: más bajo, la pantalla apenas se ve de día. */
+private const val MIN_BRIGHTNESS = 0.05f
+
+/**
+ * Deslizador a tamaño de este panel (el de Material está pensado para dp de móvil): pista gruesa, la parte llena en
+ * tinta y un tirador grande. Se toca o se arrastra; desactivado, se ve translúcido y no responde.
+ */
+@Composable
+private fun LevelSlider(value: Float, enabled: Boolean, modifier: Modifier = Modifier, onChange: (Float) -> Unit) {
+    val change by rememberUpdatedState(onChange)
+    val thumb = 26f
+    fun valueAt(x: Float, width: Int) = (MIN_BRIGHTNESS + (1f - MIN_BRIGHTNESS) * ((x - thumb) / (width - thumb * 2))).coerceIn(MIN_BRIGHTNESS, 1f)
+    Canvas(
+        modifier
+            .height(84.dp)
+            .alpha(if (enabled) 1f else 0.35f)
+            .pointerInput(enabled) { if (enabled) detectTapGestures { change(valueAt(it.x, size.width)) } }
+            .pointerInput(enabled) { if (enabled) detectHorizontalDragGestures { pointer, _ -> change(valueAt(pointer.position.x, size.width)) } }
+    ) {
+        val y = size.height / 2
+        val x = thumb + (size.width - thumb * 2) * ((value - MIN_BRIGHTNESS) / (1f - MIN_BRIGHTNESS))
+        drawLine(Control, Offset(thumb, y), Offset(size.width - thumb, y), strokeWidth = 16f, cap = StrokeCap.Round)
+        drawLine(Palette.Ink, Offset(thumb, y), Offset(x, y), strokeWidth = 16f, cap = StrokeCap.Round)
+        drawCircle(Palette.Ink, thumb, Offset(x, y))
+        drawCircle(Palette.Card, thumb - 8f, Offset(x, y))
     }
 }
 
@@ -267,7 +310,9 @@ private fun WifiCard() {
             Text(
                 listOfNotNull(rssi?.let { "$it dBm" } ?: "Señal desconocida", current.ip).joinToString("  ·  "),
                 style = Type.Small,
-                maxLines = 1
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -290,17 +335,6 @@ private fun Toggle(label: String, checked: Boolean, onChange: (Boolean) -> Unit)
             Box(Modifier.size(46.dp).background(Palette.Card, CircleShape))
         }
     }
-}
-
-@Composable
-private fun Choice(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .height(84.dp)
-            .background(if (selected) Palette.Ink else Control, RoundedCornerShape(42.dp))
-            .clickable(onClick = onClick)
-    ) { Text(label, style = Type.Body.copy(color = if (selected) Palette.Card else Palette.Ink), maxLines = 1) }
 }
 
 @Composable

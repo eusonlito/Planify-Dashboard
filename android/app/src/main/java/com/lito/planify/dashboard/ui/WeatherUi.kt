@@ -48,6 +48,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -151,25 +152,28 @@ fun Path.smoothThrough(xs: List<Float>, ys: List<Float>) {
 const val HOURS_BEFORE = 4
 const val HOURS_SHOWN = 24
 
-/** Lluvia que llena la barra entera: 15 mm en una hora es el paso de lluvia moderada a fuerte. */
-private const val RAIN_FULL_MM = 15.0
+/** Lluvia que llena la barra entera en una hora; con 15 mm (el paso de moderada a fuerte), un azul más intenso. */
+private const val RAIN_FULL_MM = 10.0
+private const val RAIN_HEAVY_MM = 15.0
 
 /** Lo mismo en un día entero: 30 mm ya es un día de mucha lluvia. */
 private const val RAIN_DAY_FULL_MM = 30.0
 
 /**
- * Barra de lluvia sobre [baseline], centrada en [x], solo si llueve algo (0,1 mm). El alto es la cantidad, en raíz
- * cuadrada para que se vea la floja y no se dispare la fuerte, llena a [full] mm (a partir de ahí, un azul más
- * intenso). La opacidad del relleno es la probabilidad: maciza al 100 % y vacía al 0 %, con un contorno suave
- * siempre. Encima, [amount].
+ * Barra de lluvia sobre [baseline], centrada en [x], solo si llueve algo (0,1 mm), con [amount] dentro, abajo, en
+ * blanco. El alto parte del justo para el número y crece en proporción a la cantidad hasta [maxHeight] con [full] mm
+ * (desde [heavy] mm, un azul más intenso): así 5,7 mm mide claramente más que 1,7. La opacidad del relleno es la
+ * probabilidad: maciza al 100 % y vacía al 0 %, con un contorno suave siempre.
  */
 private fun DrawScope.drawRain(
     measurer: TextMeasurer, x: Float, baseline: Float, maxHeight: Float, mm: Double, chance: Int, full: Double,
-    width: Float, amount: String, amountStyle: TextStyle
+    heavy: Double, width: Float, amount: String, amountStyle: TextStyle
 ) {
     if (mm < 0.1) return
-    val height = maxHeight * kotlin.math.sqrt(minOf(mm, full) / full).toFloat()
-    val color = if (mm >= full) RainHeavy else Palette.Rain
+    val label = measurer.measure(amount, amountStyle)
+    val base = label.size.height + 10f
+    val height = base + (maxHeight - base).coerceAtLeast(0f) * (minOf(mm, full) / full).toFloat()
+    val color = if (mm >= heavy) RainHeavy else Palette.Rain
     val topLeft = Offset(x - width / 2, baseline - height)
     // Esquinas redondeadas solo arriba: la barra sale recta de la línea base
     val corner = CornerRadius(width * 0.3f)
@@ -181,8 +185,7 @@ private fun DrawScope.drawRain(
     val fill = (chance / 100f).coerceIn(0f, 1f)
     drawPath(shape, color.copy(alpha = fill))
     drawPath(shape, color.copy(alpha = 0.35f), style = Stroke(width = 2f))
-    val label = measurer.measure(amount, amountStyle)
-    drawText(label, topLeft = Offset(x - label.size.width / 2, baseline - height - 6 - label.size.height))
+    drawText(label, topLeft = Offset(x - label.size.width / 2, baseline - label.size.height - 5f))
 }
 
 private val RainHeavy = Color(0xFF1D4ED8)
@@ -219,7 +222,7 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
     // La temperatura de cada hora, sin "°"; con columnas estrechas (Hoy), más pequeña, para que se vea el pico
     val narrowTempStyle = tempStyle.copy(fontSize = 17.sp)
     // Los mm, pequeños para no saturar la gráfica; en compacto (Hoy), aún más
-    val mmStyle = Type.Tiny.copy(color = Palette.Rain, fontWeight = FontWeight.SemiBold, fontSize = if (compact) 14.sp else 16.sp)
+    val mmStyle = Type.Tiny.copy(color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = if (compact) 14.sp else 16.sp)
     val hourStyle = Type.Mono.copy(fontSize = Type.Mono.fontSize * 0.85f)
 
     Column(modifier) {
@@ -229,7 +232,8 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
             val baseline = size.height - 2f
             val curveTop = 52f
             // Con poco alto, la lluvia cede espacio para que la curva no se monte sobre las barras.
-            val rainHeight = ((baseline - curveTop - 40f) * 0.42f).coerceIn(0f, 130f)
+            // En Hoy la gráfica es baja: la lluvia se lleva más parte para que las barras se distingan
+            val rainHeight = ((baseline - curveTop - 40f) * if (compact) 0.6f else 0.42f).coerceIn(0f, 200f)
             val curveBottom = baseline - rainHeight - 40f
             val minT = temps.min()
             val maxT = maxOf(temps.max(), minT + 1)
@@ -273,7 +277,7 @@ fun HourlyForecast(forecast: Forecast, now: LocalDateTime, modifier: Modifier = 
                 drawText(label, topLeft = Offset(center.x - label.size.width / 2, center.y - label.size.height - 16))
 
                 val (mm, chance) = rain[i]
-                drawRain(measurer, center.x, baseline, rainHeight, mm, chance, RAIN_FULL_MM, 26f, if (column >= 90f) "${mm.decimal()} mm" else mm.decimal(), mmStyle)
+                drawRain(measurer, center.x, baseline, rainHeight, mm, chance, RAIN_FULL_MM, RAIN_HEAVY_MM, if (compact) 30f else 36f, mm.decimal(), mmStyle)
             }
             drawLine(Palette.Line, Offset(0f, baseline), Offset(size.width, baseline), strokeWidth = 2f)
         }
@@ -450,12 +454,15 @@ fun DaysRow(
                 val rainText = listOfNotNull(total, rain).joinToString(" · ")
                 Text(if (showDate) "$name ${date.dayOfMonth}" else name, style = text)
                 DayWeatherIcon(forecast, date, today, size = if (compact) 36 else 44)
+                // Centrados en vertical: con la caja de cada texto ajustada a su letra (sin el aire de la altura de línea),
+                // la lluvia, más pequeña, queda a media altura de las temperaturas
+                val tight = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(forecast.daily.temperature_2m_max[index].degrees(), style = text.copy(fontWeight = FontWeight.SemiBold))
-                    Text(forecast.daily.temperature_2m_min[index].degrees(), style = text.copy(color = Palette.InkMuted), modifier = Modifier.padding(start = if (compact) 6.dp else 8.dp))
+                    Text(forecast.daily.temperature_2m_max[index].degrees(), style = text.copy(fontWeight = FontWeight.SemiBold, lineHeight = text.fontSize, lineHeightStyle = tight))
+                    Text(forecast.daily.temperature_2m_min[index].degrees(), style = text.copy(color = Palette.InkMuted, lineHeight = text.fontSize, lineHeightStyle = tight), modifier = Modifier.padding(start = if (compact) 6.dp else 8.dp))
                     // En compacto la lluvia va en la misma línea
                     // (solo el %, sin icono: la fila de Hoy ya va justa)
-                    if (compact && rain != null) Text(rain, style = Type.Tiny.copy(color = Palette.Rain, fontSize = 16.sp), maxLines = 1, softWrap = false, modifier = Modifier.padding(start = 10.dp))
+                    if (compact && rain != null) Text(rain, style = Type.Tiny.copy(color = Palette.Rain, fontSize = 16.sp, lineHeight = 16.sp, lineHeightStyle = tight), maxLines = 1, softWrap = false, modifier = Modifier.padding(start = 10.dp))
                 }
                 // Sin lluvia, la línea queda invisible para que todas las columnas midan lo mismo
                 if (!compact) Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.alpha(if (rainText.isEmpty()) 0f else 1f)) {
@@ -484,7 +491,7 @@ fun DailyForecast(forecast: Forecast, dates: List<LocalDate>, modifier: Modifier
     val measurer = rememberTextMeasurer()
     val highStyle = Type.Small.copy(color = Palette.Ink, fontWeight = FontWeight.SemiBold)
     val lowStyle = Type.Small.copy(color = Palette.Night)
-    val mmStyle = Type.Tiny.copy(color = Palette.Rain, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+    val mmStyle = Type.Tiny.copy(color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
     val windStyle = Type.Tiny.copy(color = Palette.InkMuted)
 
     Canvas(modifier) {
@@ -492,7 +499,7 @@ fun DailyForecast(forecast: Forecast, dates: List<LocalDate>, modifier: Modifier
         fun x(i: Int) = column * i + column / 2
         val windHeight = 34f
         val baseline = size.height - windHeight - 8f
-        val rainHeight = (baseline * 0.32f).coerceAtMost(150f)
+        val rainHeight = (baseline * 0.32f).coerceAtMost(200f)
         val curveTop = 50f
         val curveBottom = baseline - rainHeight - 60f
         val minT = lows.min()
@@ -532,7 +539,7 @@ fun DailyForecast(forecast: Forecast, dates: List<LocalDate>, modifier: Modifier
             val lowLabel = measurer.measure("${lows[i].roundToInt()}°", lowStyle)
             drawText(lowLabel, topLeft = Offset(bottom.x - lowLabel.size.width / 2, bottom.y + 12))
 
-            drawRain(measurer, x(i), baseline, rainHeight, mm[i], rain[i], RAIN_DAY_FULL_MM, 36f, "${mm[i].decimal()} mm", mmStyle)
+            drawRain(measurer, x(i), baseline, rainHeight, mm[i], rain[i], RAIN_DAY_FULL_MM, RAIN_DAY_FULL_MM, 48f, mm[i].decimal(), mmStyle)
 
             val windLabel = measurer.measure("${wind[i]} km/h", windStyle)
             drawText(windLabel, topLeft = Offset(x(i) - windLabel.size.width / 2, size.height - windLabel.size.height))
