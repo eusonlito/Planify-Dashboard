@@ -2,8 +2,6 @@ package com.lito.planify.dashboard.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,11 +10,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,32 +25,37 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lito.planify.dashboard.R
@@ -57,12 +63,14 @@ import com.lito.planify.dashboard.data.Forecast
 import com.lito.planify.dashboard.data.Hourly
 import com.lito.planify.dashboard.ui.theme.Palette
 import com.lito.planify.dashboard.ui.theme.Type
-import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
 // --- Códigos WMO de Open-Meteo ---
 
@@ -325,7 +333,8 @@ fun WeatherCard(
     now: LocalDateTime,
     days: Int,
     modifier: Modifier = Modifier,
-    compact: Boolean = false
+    compact: Boolean = false,
+    onChartEdge: ((Int) -> Unit)? = null
 ) {
     val today = now.toLocalDate()
     var picked by remember { mutableStateOf<LocalDate?>(null) }
@@ -337,6 +346,18 @@ fun WeatherCard(
     }
     val selected = picked?.takeIf { it > today && forecast.dayIndex(it) >= 0 && forecast.hasHours(it) }
     val onDay: (LocalDate) -> Unit = { date -> picked = if (date == today || date == selected) null else date }
+    // La gráfica es un pager con un día por página (los días con previsión por horas: en Hoy, todos; en Tiempo, los de
+    // la fila, y al pasar del último sigue la página de fuera, Próxima semana). Deslizar o tocar un día mueve el otro.
+    val chartDays = forecast.daily.time.map(LocalDate::parse)
+        .filter { it >= today && forecast.hasHours(it) && (compact || it < today.plusDays(days.toLong())) }
+    val chart = rememberPagerState { chartDays.size }
+    LaunchedEffect(chart.settledPage) {
+        chartDays.getOrNull(chart.settledPage)?.let { picked = it.takeIf { it != today } }
+    }
+    LaunchedEffect(selected) {
+        val page = chartDays.indexOf(selected ?: today).coerceAtLeast(0)
+        if (chartDays.isNotEmpty() && chart.currentPage != page) chart.animateScrollToPage(page)
+    }
     Column(
         modifier
             .background(Palette.Card, RoundedCornerShape(32.dp))
@@ -344,8 +365,14 @@ fun WeatherCard(
     ) {
         WeatherHeader(forecast, location, today, selected, compact)
         // La gráfica es siempre un día entero (de 00 a 23): hoy, con la banda de la hora actual avanzando por ella
-        val hours = selected ?: today.takeIf { forecast.hasHours(it) }
-        HourlyForecast(forecast, now, Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp), iconSize = if (compact) 28 else 36, day = hours, compact = compact)
+        val chartModifier = Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp)
+        if (chartDays.isEmpty()) {
+            HourlyForecast(forecast, now, chartModifier, iconSize = if (compact) 28 else 36, compact = compact)
+        } else {
+            HorizontalPager(chart, chartModifier.nestedScroll(rememberEdgeSwipe(onChartEdge)), pageSpacing = 40.dp) { page ->
+                HourlyForecast(forecast, now, Modifier.fillMaxSize(), iconSize = if (compact) 28 else 36, day = chartDays[page], compact = compact)
+            }
+        }
         // La gráfica del día y los días quedan separados por una línea
         Hairline(Modifier.padding(top = if (compact) 12.dp else 18.dp, bottom = if (compact) 12.dp else 18.dp))
         if (compact) {
@@ -414,6 +441,11 @@ private fun DaysPager(forecast: Forecast, today: LocalDate, perPage: Int, highli
     val available = forecast.daily.time.count { LocalDate.parse(it) >= today }
     val pages = ((available + perPage - 1) / perPage).coerceAtLeast(1)
     val pager = rememberPagerState { pages }
+    // Si el día resaltado cambia (al deslizar la gráfica), se ve la página que lo contiene
+    LaunchedEffect(highlight) {
+        val page = (ChronoUnit.DAYS.between(today, highlight).toInt() / perPage).coerceIn(0, pages - 1)
+        if (pager.currentPage != page) pager.animateScrollToPage(page)
+    }
     LaunchedEffect(pager.settledPage) {
         if (pager.settledPage != 0) {
             delay(120_000)
@@ -568,7 +600,15 @@ fun DailyForecast(forecast: Forecast, dates: List<LocalDate>, modifier: Modifier
  * nuevo vuelve a la semana (y sola a los 2 minutos).
  */
 @Composable
-fun WeekWeatherCard(forecast: Forecast, location: String, title: String, from: LocalDate, now: LocalDateTime, modifier: Modifier = Modifier) {
+fun WeekWeatherCard(
+    forecast: Forecast,
+    location: String,
+    title: String,
+    from: LocalDate,
+    now: LocalDateTime,
+    modifier: Modifier = Modifier,
+    onChartEdge: ((Int) -> Unit)? = null
+) {
     val dates = (0 until 7).map { from.plusDays(it.toLong()) }
     var picked by remember { mutableStateOf<LocalDate?>(null) }
     LaunchedEffect(picked) {
@@ -578,6 +618,15 @@ fun WeekWeatherCard(forecast: Forecast, location: String, title: String, from: L
         }
     }
     val selected = picked?.takeIf { it in dates && forecast.hasHours(it) }
+    // La gráfica es un pager: la semana y después cada día (semana → lunes → … → domingo). Antes de la semana sigue la
+    // página de fuera, el día de hoy.
+    val steps = listOf<LocalDate?>(null) + dates.filter { forecast.hasHours(it) }
+    val chart = rememberPagerState { steps.size }
+    LaunchedEffect(chart.settledPage) { picked = steps.getOrNull(chart.settledPage) }
+    LaunchedEffect(selected) {
+        val page = steps.indexOf(selected).coerceAtLeast(0)
+        if (chart.currentPage != page) chart.animateScrollToPage(page)
+    }
     Column(
         modifier
             .background(Palette.Card, RoundedCornerShape(32.dp))
@@ -595,10 +644,10 @@ fun WeekWeatherCard(forecast: Forecast, location: String, title: String, from: L
             Text("Cargando previsión…", style = Type.Body.copy(color = Palette.InkMuted), modifier = Modifier.padding(top = 24.dp))
             return@Column
         }
-        if (selected != null) {
-            HourlyForecast(forecast, now, Modifier.fillMaxWidth().weight(1f).padding(top = 12.dp), day = selected)
-        } else {
-            DailyForecast(forecast, dates, Modifier.fillMaxWidth().weight(1f).padding(top = 20.dp))
+        HorizontalPager(chart, Modifier.fillMaxWidth().weight(1f).nestedScroll(rememberEdgeSwipe(onChartEdge)), pageSpacing = 40.dp) { page ->
+            val day = steps[page]
+            if (day != null) HourlyForecast(forecast, now, Modifier.fillMaxSize().padding(top = 12.dp), day = day)
+            else DailyForecast(forecast, dates, Modifier.fillMaxSize().padding(top = 20.dp))
         }
         DaysRow(
             forecast, dates, highlight = selected, modifier = Modifier.fillMaxWidth().padding(top = 16.dp), showDate = true,
@@ -643,3 +692,34 @@ private fun Stat(@DrawableRes icon: Int, value: String, unit: String, compact: B
 }
 
 private const val UNIT_SCALE = 0.6f
+
+/** Recorrido mínimo, en px, más allá del borde de un pager para que cuente como pasar a la página de fuera. */
+private const val EDGE_SWIPE_PX = 60f
+
+/**
+ * Para la gráfica, un pager dentro de otro: lo que se desliza más allá de su primera o última página (que ya no puede
+ * mover) se acumula y, al soltar, si pasa de [EDGE_SWIPE_PX], llama a [onEdge] con 1 (después de la última) o -1 (antes
+ * de la primera), para que el de fuera cambie de página. Sin [onEdge], el pager se comporta como siempre.
+ */
+@Composable
+private fun rememberEdgeSwipe(onEdge: ((Int) -> Unit)?): NestedScrollConnection {
+    val callback by rememberUpdatedState(onEdge)
+    return remember {
+        object : NestedScrollConnection {
+            var overflow = 0f
+
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (callback == null || source != NestedScrollSource.UserInput) return Offset.Zero
+                overflow += available.x
+                return Offset(available.x, 0f)
+            }
+
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                val total = overflow
+                overflow = 0f
+                if (abs(total) > EDGE_SWIPE_PX) callback?.invoke(if (total < 0) 1 else -1)
+                return Velocity.Zero
+            }
+        }
+    }
+}

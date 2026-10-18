@@ -12,8 +12,9 @@ import java.time.ZoneOffset
 import java.util.TimeZone
 
 /**
- * Contenido de Hoy: todos los eventos desde hoy (Próximos eventos no tiene límite), las sesiones de rutina de esta
- * semana y las tareas pendientes, de los calendarios y listas marcados para el dashboard.
+ * Contenido de Hoy: todos los eventos desde el día 1 del mes de hace [PAST_MONTHS] meses (el calendario de Hoy marca
+ * también los días pasados; Próximos eventos, desde hoy y sin límite), las sesiones de rutina de esta semana y las tareas pendientes, de los
+ * calendarios y listas marcados para el dashboard.
  */
 class ContentRepository(private val api: Api, cache: DiskCache) {
     private val resource = CachedResource<Content>(cache, "content", Content::class.java, MAX_AGE_MS)
@@ -27,9 +28,10 @@ class ContentRepository(private val api: Api, cache: DiskCache) {
         val zone = TimeZone.getDefault().id
         // Igual que la app: la hora local se envía como segundos epoch en UTC.
         val start = today.atStartOfDay().toEpochSecond(ZoneOffset.UTC)
+        val monthStart = today.withDayOfMonth(1).minusMonths(PAST_MONTHS).atStartOfDay().toEpochSecond(ZoneOffset.UTC)
         val end = today.plusDays(ROUTINE_DAYS).atStartOfDay().toEpochSecond(ZoneOffset.UTC) - 1
         Content(
-            events = api.events(auth, start, null, routine = false, timezone = zone).bodyOrThrow().sortedBy { it.date_at },
+            events = api.events(auth, monthStart, null, routine = false, timezone = zone).bodyOrThrow().sortedBy { it.date_at },
             sessions = api.events(auth, start, end, routine = true, timezone = zone).bodyOrThrow().sortedBy { it.date_at },
             tasks = api.tasks(auth).bodyOrThrow().filter { it.completed_at == null }
         )
@@ -40,6 +42,8 @@ class ContentRepository(private val api: Api, cache: DiskCache) {
     companion object {
         /** Días de rutinas que se descargan: hoy y los 6 siguientes. */
         const val ROUTINE_DAYS = 7L
+        /** Meses de eventos pasados que se descargan, para el calendario de Hoy. */
+        const val PAST_MONTHS = 12L
         const val MAX_AGE_MS = 5 * 60_000L
     }
 }

@@ -10,12 +10,14 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lito.planify.dashboard.UiState
 import com.lito.planify.dashboard.ui.theme.Palette
 import com.lito.planify.dashboard.ui.theme.Type
+import kotlinx.coroutines.launch
 
 /**
  * El tiempo a pantalla completa, en dos páginas que se deslizan: esta semana (24 horas, de 4 antes de la
@@ -31,13 +33,19 @@ fun WeatherScreen(state: UiState) {
             return@ScreenPadding
         }
         val pager = rememberPagerState { 2 }
+        val scope = rememberCoroutineScope()
         val today = state.now.toLocalDate()
         Column(Modifier.fillMaxSize()) {
             HorizontalPager(pager, Modifier.fillMaxWidth().weight(1f), pageSpacing = 40.dp) { page ->
                 if (page == 0) {
-                    WeatherCard(forecast, location.name, state.now, days = 7, modifier = Modifier.fillMaxSize())
+                    // Al pasar del último día de la gráfica sigue la semana siguiente, y antes de la semana vuelve al día
+                    WeatherCard(forecast, location.name, state.now, days = 7, modifier = Modifier.fillMaxSize()) { edge ->
+                        if (edge > 0) scope.launch { pager.animateScrollToPage(1) }
+                    }
                 } else {
-                    WeekWeatherCard(forecast, location.name, "Próxima semana", today.plusDays(7), state.now, Modifier.fillMaxSize())
+                    WeekWeatherCard(forecast, location.name, "Próxima semana", today.plusDays(7), state.now, Modifier.fillMaxSize()) { edge ->
+                        if (edge < 0) scope.launch { pager.animateScrollToPage(0) }
+                    }
                 }
             }
             Row(

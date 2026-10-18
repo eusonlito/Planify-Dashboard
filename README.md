@@ -35,7 +35,7 @@ Este proyecto está conectado con la aplicación y el backend de Planify:
 Todas las secciones de la app, en el emulador con las medidas del marco (1920×1200) y datos de demostración.
 
 ### Hoy
-La pantalla principal: reloj de paletas, el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días), los próximos eventos, las rutinas de hoy y las tareas.
+La pantalla principal: reloj de paletas, el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días; deslizando sobre la curva se cambia de día), el calendario del mes, los próximos eventos y las rutinas de hoy. Al tocar un día del calendario, la lista pasa a ser la de ese día.
 
 <img src="docs/images/today.png" alt="Hoy" />
 
@@ -45,7 +45,7 @@ La semana de lunes a domingo, deslizando entre semanas: el tiempo de cada día, 
 <img src="docs/images/calendar.png" alt="Calendario" />
 
 ### Tiempo
-Dos páginas que se deslizan. La primera: el día de hoy por horas, de 00 a 23 con la hora actual marcada, y 7 días. La segunda: la semana siguiente en gráfica (máximas, mínimas, lluvia y viento). Tocar cualquier día abre sus 24 horas con su propia cabecera. La lluvia se dibuja por cantidad: el alto de la barra son los mm de esa hora, y la opacidad del relleno, la probabilidad (maciza al 100 %, vacía al 0 %).
+Dos páginas que se deslizan. La primera: el día de hoy por horas, de 00 a 23 con la hora actual marcada, y 7 días. La segunda: la semana siguiente en gráfica (máximas, mínimas, lluvia y viento). Tocar cualquier día abre sus 24 horas con su propia cabecera, y deslizar sobre la gráfica pasa de un día a otro. La lluvia se dibuja por cantidad: el alto de la barra son los mm de esa hora, y la opacidad del relleno, la probabilidad (maciza al 100 %, vacía al 0 %).
 
 <p align="center">
   <img src="docs/images/weather.png" width="49%" alt="Tiempo: hoy por horas y 7 días" />
@@ -269,7 +269,7 @@ Barra lateral con Hoy, Calendario, Tiempo, Tareas, sincronizar, Ajustes y apagar
 
 | Pantalla | Contenido |
 |---|---|
-| **Hoy** | Reloj de paletas (split-flap), el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días, que se deslizan), próximos eventos, rutinas de hoy y tareas |
+| **Hoy** | Reloj de paletas (split-flap), el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días, que se deslizan), calendario del mes, próximos eventos y rutinas de hoy |
 | **Calendario** | Semana a semana (deslizando): el tiempo de cada día, los eventos, una banda aparte para las rutinas y los colores de cada persona |
 | **Tiempo** | Hoy de 00 a 23 h y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
 | **Tareas** | Todas las listas elegidas, en columnas |

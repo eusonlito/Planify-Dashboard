@@ -65,8 +65,7 @@ fun CalendarScreen(state: UiState, onLoadWeek: (LocalDate) -> Unit) {
         Column(Modifier.fillMaxSize()) {
             // Alto fijo: el botón "Volver a hoy" aparece y desaparece sin mover las columnas.
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().height(84.dp)) {
-                Text("Semana ${shown.weekNumber()}", style = Type.Title.copy(fontWeight = FontWeight.SemiBold))
-                Text(weekRange(shown), style = Type.Large.copy(color = Palette.InkSoft), modifier = Modifier.padding(start = 24.dp).weight(1f))
+                Text(weekRange(shown).replaceFirstChar { it.uppercaseChar() }, style = Type.Title.copy(fontWeight = FontWeight.SemiBold), modifier = Modifier.weight(1f))
                 if (pager.currentPage != CURRENT) {
                     PillButton("Volver a hoy") { scope.launch { pager.animateScrollToPage(CURRENT) } }
                 }

@@ -41,7 +41,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
-import java.time.temporal.IsoFields
 import java.util.Locale
 
 val Spanish: Locale = Locale.forLanguageTag("es-ES")
@@ -56,8 +55,6 @@ fun LocalDate.weekdayName(style: TextStyle = TextStyle.FULL) = dayOfWeek.getDisp
 
 /** "LUNES 12 OCTUBRE" */
 fun LocalDate.longLabel() = "${dayOfWeek.getDisplayName(TextStyle.FULL, Spanish)} $dayOfMonth ${month.getDisplayName(TextStyle.FULL, Spanish)}".uppercase(Spanish)
-
-fun LocalDate.weekNumber() = get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
 
 /** Los 7 días desde [from]: "13 – 19 de octubre" o "29 de septiembre – 5 de octubre" (con el año si no es el actual). */
 fun weekRange(from: LocalDate): String {

@@ -8,3 +8,6 @@ android/.kotlin/
 docs/photo-frame-dashboard/
 android/planify.properties
 scripts/config.local
+
+# Entorno de demo (scripts/demo.sh)
+.demo/

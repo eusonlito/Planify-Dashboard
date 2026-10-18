@@ -126,7 +126,7 @@ fun DashboardApp(
             Rail(page, state, onSelect = { page = it }, onSync = onSync, onSleep = actions.sleep)
             Box(Modifier.weight(1f).fillMaxHeight()) {
                 when (page) {
-                    Page.Today -> TodayScreen(state)
+                    Page.Today -> TodayScreen(state, lastTouch)
                     Page.Calendar -> CalendarScreen(state, onLoadWeek)
                     Page.Weather -> WeatherScreen(state)
                     Page.Tasks -> TasksScreen(state)
