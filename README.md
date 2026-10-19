@@ -52,7 +52,7 @@ Dos páginas que se deslizan. La primera: el día de hoy por horas, de 00 a 23 c
   <img src="docs/images/weather-week.png" width="49%" alt="Tiempo: la semana siguiente" />
 </p>
 <p align="center">
-  <img src="docs/images/weather-day.png" width="49%" alt="Tiempo: un día de lluvia por horas" />
+  <img src="docs/images/weather-day.png" width="49%" alt="Tiempo: un día de la semana siguiente por horas" />
 </p>
 
 ### Tareas
