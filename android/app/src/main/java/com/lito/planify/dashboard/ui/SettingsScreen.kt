@@ -66,6 +66,7 @@ import com.lito.planify.dashboard.data.readWifiStatus
 import com.lito.planify.dashboard.ui.theme.Palette
 import com.lito.planify.dashboard.ui.theme.Type
 import java.time.LocalTime
+import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -209,7 +210,8 @@ private fun BrightnessSection(brightness: Float?, onChange: (Float?) -> Unit) {
     // Último brillo manual, para volver a él al quitar el automático
     var manual by remember { mutableFloatStateOf(brightness ?: 0.8f) }
     val auto = brightness == null
-    Section("Brillo") {
+    // El valor elegido va en el título, para no quitarle ancho al deslizador
+    Section(if (auto) "Brillo · automático" else "Brillo · ${(manual * 100).roundToInt()}%") {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
             LevelSlider(manual, enabled = !auto, modifier = Modifier.weight(1f)) {
                 manual = it
@@ -219,7 +221,7 @@ private fun BrightnessSection(brightness: Float?, onChange: (Float?) -> Unit) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(84.dp)
+                    .size(64.dp)
                     .clip(CircleShape)
                     .background(if (auto) Palette.Ink else Control, CircleShape)
                     .clickable { onChange(if (auto) manual else null) }
@@ -231,6 +233,9 @@ private fun BrightnessSection(brightness: Float?, onChange: (Float?) -> Unit) {
 /** Brillo mínimo del deslizador: más bajo, la pantalla apenas se ve de día. */
 private const val MIN_BRIGHTNESS = 0.05f
 
+/** Salto del deslizador: de 5 en 5 %. */
+private const val BRIGHTNESS_STEP = 0.05f
+
 /**
  * Deslizador a tamaño de este panel (el de Material está pensado para dp de móvil): pista gruesa, la parte llena en
  * tinta y un tirador grande. Se toca o se arrastra; desactivado, se ve translúcido y no responde.
@@ -239,7 +244,10 @@ private const val MIN_BRIGHTNESS = 0.05f
 private fun LevelSlider(value: Float, enabled: Boolean, modifier: Modifier = Modifier, onChange: (Float) -> Unit) {
     val change by rememberUpdatedState(onChange)
     val thumb = 26f
-    fun valueAt(x: Float, width: Int) = (MIN_BRIGHTNESS + (1f - MIN_BRIGHTNESS) * ((x - thumb) / (width - thumb * 2))).coerceIn(MIN_BRIGHTNESS, 1f)
+    fun valueAt(x: Float, width: Int): Float {
+        val raw = MIN_BRIGHTNESS + (1f - MIN_BRIGHTNESS) * ((x - thumb) / (width - thumb * 2))
+        return ((raw / BRIGHTNESS_STEP).roundToInt() * BRIGHTNESS_STEP).coerceIn(MIN_BRIGHTNESS, 1f)
+    }
     Canvas(
         modifier
             .height(84.dp)

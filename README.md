@@ -61,7 +61,7 @@ Las tareas pendientes de las listas elegidas en la APP, una columna por lista.
 <img src="docs/images/tasks.png" alt="Tareas" />
 
 ### Ajustes
-Ubicación del tiempo (búsqueda en Open-Meteo), horario de pantalla (entre semana y fin de semana, con el interruptor «Reloj nocturno»: si se desactiva, fuera de horario la pantalla se apaga del todo), brillo (un deslizador y «A» para el automático del sistema), Conexión (estado del Wi-Fi) y, en su propia caja, Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar.
+Ubicación del tiempo (búsqueda en Open-Meteo), horario de pantalla (entre semana y fin de semana, con el interruptor «Reloj nocturno»: si se desactiva, fuera de horario la pantalla se apaga del todo), brillo (un deslizador, con el porcentaje en el título, y «A» para el automático del sistema), Conexión (estado del Wi-Fi) y, en su propia caja, Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar.
 
 <img src="docs/images/settings.png" alt="Ajustes" />
 

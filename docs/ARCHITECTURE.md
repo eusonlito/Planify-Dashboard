@@ -23,7 +23,7 @@ Las tarjetas llevan una cabecera común (`CardHeader`): icono en un cuadro tinta
 - **Reloj nocturno** (`NightScreen`): fuera de horario, si no se ha elegido apagar la pantalla, la hora, la fecha y el tiempo de ahora en negrita y en blanco sobre negro (el icono del tiempo, teñido de blanco), estáticos, con el brillo al mínimo (`MainActivity` pone `screenBrightness` a 1/255 mientras `UiState.night`). Tocar enseña el dashboard 5 minutos (`peekUntil`). La luna de la barra lateral también lo activa si está el reloj nocturno (`nightNow`, hasta que se toque o hasta el siguiente encendido); si no, apaga la pantalla con `lockNow()`.
 - **Ajustes:**
   - tres columnas que caben sin desplazamiento;
-  - ubicación (Open-Meteo); horario de pantalla; **brillo** (deslizador propio, del 5 al 100 %, y a su derecha «A», el brillo automático del sistema, que deja el deslizador desactivado y translúcido) y **Conexión** (estado del Wi-Fi) en una caja, y debajo, en otra, Wi-Fi, Ajustes de Android, Cerrar sesión y Apagar o reiniciar;
+  - ubicación (Open-Meteo); horario de pantalla; **brillo** (en el título, el porcentaje elegido o «automático»; deslizador propio, del 5 al 100 % de 5 en 5, y a su derecha «A», el brillo automático del sistema, que deja el deslizador desactivado y translúcido) y **Conexión** (estado del Wi-Fi) en una caja, y debajo, en otra, Wi-Fi, Ajustes de Android, Cerrar sesión y Apagar o reiniciar;
   - todos los botones, a lo ancho y del mismo alto.
 
 ## Cómo funciona

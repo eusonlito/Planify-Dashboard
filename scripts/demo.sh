@@ -64,8 +64,14 @@ up() {
 emulator() {
     if ! adb devices | grep -q "^$ANDROID_SERIAL\s*device"; then
         step "Arrancando el emulador $AVD"
+        # Si el PC se apagó con el emulador abierto, quedan los bloqueos del AVD y no vuelve a arrancar
+        pgrep -f "[q]emu.*-avd $AVD" >/dev/null || rm -f "$HOME/.android/avd/$AVD.avd/"*.lock
         setsid "$SDK/emulator/emulator" -avd "$AVD" -port "$EMULATOR_PORT" -no-snapshot-save > "$DEMO/emulator.log" 2>&1 < /dev/null &
-        adb wait-for-device
+        local pid=$!
+        until adb devices | grep -q "^$ANDROID_SERIAL\s*device"; do
+            kill -0 $pid 2>/dev/null || { echo "El emulador no arrancó:"; tail -5 "$DEMO/emulator.log"; exit 1; }
+            sleep 1
+        done
     fi
     until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 1; done
     adb root >/dev/null
