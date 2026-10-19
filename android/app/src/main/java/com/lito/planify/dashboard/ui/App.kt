@@ -21,10 +21,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Checklist
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.Thermostat
-import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,7 +56,7 @@ import java.time.LocalDate
 import kotlinx.coroutines.delay
 
 enum class Page(val label: String, val icon: ImageVector) {
-    Today("Hoy", Icons.Outlined.Today),
+    Today("Hoy", Icons.Outlined.Home),
     Calendar("Calendario", Icons.Outlined.CalendarMonth),
     Weather("Tiempo", Icons.Outlined.Thermostat),
     Tasks("Tareas", Icons.Outlined.Checklist),
