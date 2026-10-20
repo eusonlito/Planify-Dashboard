@@ -42,5 +42,16 @@ for T in iptables ip6tables; do
     $T -C INPUT -j FRAME_IN 2>/dev/null || $T -I INPUT -j FRAME_IN
 done
 
+# Servicio del botón "Apagar o reiniciar": tras reiniciar, Android no lo enlaza aunque siga en
+# enabled_accessibility_services (install.sh solo lo dejaba activo hasta el siguiente reinicio). Volver a escribir el
+# mismo valor no basta: hay que vaciar la lista y ponerla otra vez.
+A11Y=$(settings get secure enabled_accessibility_services)
+case "$A11Y" in
+    *PowerMenuService*)
+        settings put secure enabled_accessibility_services ""
+        settings put secure enabled_accessibility_services "$A11Y"
+        ;;
+esac
+
 # Por si una actualización o un reset vuelve a activar Uhale
 pm disable-user --user 0 com.zeasn.frame >/dev/null 2>&1
