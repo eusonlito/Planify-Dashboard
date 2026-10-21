@@ -40,7 +40,7 @@ La pantalla principal: reloj de paletas, el siguiente evento con cuenta atrás, 
 <img src="docs/images/today.png" alt="Hoy" />
 
 ### Calendario
-La semana de lunes a domingo, deslizando entre semanas: el tiempo de cada día, los eventos, una banda aparte para las rutinas y la leyenda de personas. Los días pasados, atenuados.
+Dos filas, la semana actual y la siguiente, de lunes a domingo, deslizando en vertical de semana en semana. Cada día, en su tarjeta: el día y el número (hoy, en rojo), el tiempo en una línea, los eventos y abajo, en una caja, las rutinas. Los días pasados, atenuados.
 
 <img src="docs/images/calendar.png" alt="Calendario" />
 
@@ -270,7 +270,7 @@ Barra lateral con Hoy, Calendario, Tiempo, Tareas, sincronizar, Ajustes y apagar
 | Pantalla | Contenido |
 |---|---|
 | **Hoy** | Reloj de paletas (split-flap), el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días, que se deslizan), calendario del mes, próximos eventos y rutinas de hoy |
-| **Calendario** | Semana a semana (deslizando): el tiempo de cada día, los eventos, una banda aparte para las rutinas y los colores de cada persona |
+| **Calendario** | Dos semanas en dos filas, deslizando en vertical: el tiempo de cada día, los eventos y una caja con las rutinas |
 | **Tiempo** | Hoy de 00 a 23 h y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
 | **Tareas** | Todas las listas elegidas, en columnas |
 | **Reloj nocturno** | Fuera de horario, o al pulsar la luna: hora, fecha y tiempo sobre negro con el brillo al mínimo; tocarlo enseña el dashboard |
