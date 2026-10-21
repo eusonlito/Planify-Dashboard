@@ -129,7 +129,7 @@ private fun Card(modifier: Modifier, content: @Composable ColumnScope.() -> Unit
 private fun ClockColumn(state: UiState, modifier: Modifier) {
     val now = state.now
     val today = now.toLocalDate()
-    val next = nextEvent(state.content?.events.orEmpty().filter { it.at.toLocalDate() >= today }, now)
+    val next = nextUp(state)
     Column(modifier) {
         // Hora y fecha, centradas en el espacio que deja la tarjeta del siguiente evento
         Column(Modifier.fillMaxWidth().weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -145,8 +145,14 @@ private fun ClockColumn(state: UiState, modifier: Modifier) {
     }
 }
 
-/** El siguiente evento: el primero que aún no ha empezado. Va en su tarjeta y no se repite en la lista de próximos. */
-private fun nextEvent(events: List<Event>, now: LocalDateTime): Event? = events.firstOrNull { !it.at.isBefore(now) }
+/**
+ * Lo siguiente: el primer evento o sesión de rutina que aún no ha empezado. Va en su tarjeta; si es un evento, no se
+ * repite en la lista de próximos (las rutinas siguen todas en la suya).
+ */
+private fun nextUp(state: UiState): Event? {
+    val content = state.content ?: return null
+    return (content.events + content.sessions).filter { !it.at.isBefore(state.now) }.minByOrNull { it.at }
+}
 
 /**
  * Próximo evento en una tarjeta del color de su calendario. Arriba, sus personas y, a la derecha, lo que falta en una
@@ -284,9 +290,8 @@ private fun EventsCard(state: UiState, day: LocalDate?, modifier: Modifier) {
     val events = if (day != null) {
         all.filter { it.at.toLocalDate() == day }
     } else {
-        val upcoming = all.filter { it.at.toLocalDate() >= now.toLocalDate() }
-        val next = nextEvent(upcoming, now)
-        upcoming.filter { it !== next }
+        val next = nextUp(state)
+        all.filter { it.at.toLocalDate() >= now.toLocalDate() && it !== next }
     }
     Card(modifier) {
         val dayName = day?.let { "${it.weekdayName()} ${it.dayOfMonth}" }

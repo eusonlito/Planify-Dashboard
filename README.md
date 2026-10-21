@@ -35,7 +35,7 @@ Este proyecto está conectado con la aplicación y el backend de Planify:
 Todas las secciones de la app, en el emulador con las medidas del marco (1920×1200) y datos de demostración.
 
 ### Hoy
-La pantalla principal: reloj de paletas, el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días; deslizando sobre la curva se cambia de día), el calendario del mes, los próximos eventos y las rutinas de hoy. Al tocar un día del calendario, la lista pasa a ser la de ese día.
+La pantalla principal: reloj de paletas, el siguiente evento o rutina con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días; deslizando sobre la curva se cambia de día), el calendario del mes, los próximos eventos y las rutinas de hoy. Al tocar un día del calendario, la lista pasa a ser la de ese día.
 
 <img src="docs/images/today.png" alt="Hoy" />
 
@@ -269,7 +269,7 @@ Barra lateral con Hoy, Calendario, Tiempo, Tareas, sincronizar, Ajustes y apagar
 
 | Pantalla | Contenido |
 |---|---|
-| **Hoy** | Reloj de paletas (split-flap), el siguiente evento con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días, que se deslizan), calendario del mes, próximos eventos y rutinas de hoy |
+| **Hoy** | Reloj de paletas (split-flap), el siguiente evento o rutina con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días, que se deslizan), calendario del mes, próximos eventos y rutinas de hoy |
 | **Calendario** | Dos semanas en dos filas, deslizando en vertical: el tiempo de cada día, los eventos y una caja con las rutinas |
 | **Tiempo** | Hoy de 00 a 23 h y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
 | **Tareas** | Todas las listas elegidas, en columnas |
