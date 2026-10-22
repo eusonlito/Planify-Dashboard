@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,6 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,11 +66,15 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.TextStyle
+import kotlin.math.roundToInt
 
 private val Gap = 28.dp
 
 /** Tiempo sin tocar la pantalla tras el que el calendario de Hoy vuelve al mes actual y Próximos eventos deja el día elegido. */
 private const val PICK_MILLIS = 5 * 60_000L
+
+/** Tiempo sin tocar la pantalla tras el que Próximos eventos y Rutinas vuelven a su posición si se han deslizado a mano. */
+private const val SCROLL_RESET_MILLIS = 60_000L
 
 /** Meses a los que se puede ir en el calendario de Hoy: los mismos hacia atrás que los eventos descargados. */
 private const val MONTHS_BACK = ContentRepository.PAST_MONTHS.toInt()
@@ -106,8 +113,8 @@ fun TodayScreen(state: UiState, lastTouch: Long) {
             }
             Row(Modifier.fillMaxWidth().weight(0.45f), horizontalArrangement = Arrangement.spacedBy(Gap)) {
                 MonthCard(state, picked, lastTouch, onDay = { picked = if (it == picked) null else it }, Modifier.width(column).fillMaxHeight())
-                EventsCard(state, picked, Modifier.width(column).fillMaxHeight())
-                RoutinesCard(state, Modifier.width(column).fillMaxHeight())
+                EventsCard(state, picked, lastTouch, Modifier.width(column).fillMaxHeight())
+                RoutinesCard(state, lastTouch, Modifier.width(column).fillMaxHeight())
             }
         }
     }
@@ -284,7 +291,7 @@ private fun MonthDay(date: LocalDate, isToday: Boolean, isPicked: Boolean, dots:
  * está en su tarjeta. Con un [day] elegido en el calendario, solo los de ese día (también el siguiente).
  */
 @Composable
-private fun EventsCard(state: UiState, day: LocalDate?, modifier: Modifier) {
+private fun EventsCard(state: UiState, day: LocalDate?, lastTouch: Long, modifier: Modifier) {
     val now = state.now
     val all = state.content?.events.orEmpty()
     val events = if (day != null) {
@@ -302,8 +309,8 @@ private fun EventsCard(state: UiState, day: LocalDate?, modifier: Modifier) {
             else EmptyState(Icons.Outlined.EventAvailable, Palette.Rain, "Sin eventos próximos", "Nada pendiente en los calendarios", Modifier.weight(1f).fillMaxWidth())
             return@Card
         }
-        Column(Modifier.fadingScroll(key(day) { rememberScrollState() })) {
-            events.forEach { event ->
+        key(day) {
+            UpcomingList(events, now, lastTouch) { event ->
                 EventRow(event, now)
                 Hairline()
             }
@@ -350,7 +357,7 @@ private fun EventRow(event: Event, now: LocalDateTime) {
 
 /** Rutinas de hoy: la lista del día, con la siguiente sesión resaltada y las pasadas atenuadas. */
 @Composable
-private fun RoutinesCard(state: UiState, modifier: Modifier) {
+private fun RoutinesCard(state: UiState, lastTouch: Long, modifier: Modifier) {
     val now = state.now
     val sessions = state.content?.sessions.orEmpty().filter { it.at.toLocalDate() == now.toLocalDate() }
     val upcoming = sessions.firstOrNull { !it.at.isBefore(now) }
@@ -360,21 +367,41 @@ private fun RoutinesCard(state: UiState, modifier: Modifier) {
             EmptyState(Icons.Outlined.Weekend, Palette.Warm, "Hoy no hay rutinas", "Día libre", Modifier.weight(1f).fillMaxWidth())
             return@Card
         }
-        Column(Modifier.padding(top = 4.dp).fadingScroll(rememberScrollState())) {
-            sessions.forEach { session ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp).alpha(if (session.at.isBefore(now)) 0.45f else 1f)
-                ) {
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(session.title, style = Type.Body, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        // La siguiente sesión, con la hora resaltada
-                        Text(session.at.format(HourMinute), style = Type.Small.copy(color = if (session == upcoming) Palette.Accent else Palette.InkSoft))
-                    }
-                    PersonPills(session.persons)
+        UpcomingList(sessions, now, lastTouch, Modifier.padding(top = 4.dp)) { session ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp).alpha(if (session.at.isBefore(now)) 0.45f else 1f)
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(session.title, style = Type.Body, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    // La siguiente sesión, con la hora resaltada
+                    Text(session.at.format(HourMinute), style = Type.Small.copy(color = if (session == upcoming) Palette.Accent else Palette.InkSoft))
                 }
-                Hairline()
+                PersonPills(session.persons)
             }
+            Hairline()
+        }
+    }
+}
+
+/**
+ * Lista con scroll que se abre con un solo elemento pasado a la vista, el último, y debajo los que faltan. Se recoloca
+ * cuando pasa otro y, si se ha deslizado a mano, tras [SCROLL_RESET_MILLIS] sin tocar la pantalla ([lastTouch]).
+ */
+@Composable
+private fun UpcomingList(items: List<Event>, now: LocalDateTime, lastTouch: Long, modifier: Modifier = Modifier, item: @Composable (Event) -> Unit) {
+    val scroll = rememberScrollState()
+    val past = items.count { it.at.isBefore(now) }
+    var lastPastTop by remember { mutableIntStateOf(0) }
+    val target = if (past > 0) lastPastTop else 0
+    LaunchedEffect(past, target) { scroll.scrollTo(target) }
+    LaunchedEffect(lastTouch, target) {
+        delay(SCROLL_RESET_MILLIS)
+        scroll.animateScrollTo(target)
+    }
+    Column(modifier.fadingScroll(scroll)) {
+        items.forEachIndexed { i, entry ->
+            Column(if (i == past - 1) Modifier.onPlaced { lastPastTop = it.positionInParent().y.roundToInt() } else Modifier) { item(entry) }
         }
     }
 }

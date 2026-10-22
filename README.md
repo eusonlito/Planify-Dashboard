@@ -35,7 +35,7 @@ Este proyecto está conectado con la aplicación y el backend de Planify:
 Todas las secciones de la app, en el emulador con las medidas del marco (1920×1200) y datos de demostración.
 
 ### Hoy
-La pantalla principal: reloj de paletas, el siguiente evento o rutina con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días; deslizando sobre la curva se cambia de día), el calendario del mes, los próximos eventos y las rutinas de hoy. Al tocar un día del calendario, la lista pasa a ser la de ese día.
+La pantalla principal: reloj de paletas, el siguiente evento o rutina con cuenta atrás, el tiempo (ahora, el día de hoy de 00 a 23 h con la hora actual marcada y los próximos días; deslizando sobre la curva se cambia de día), el calendario del mes, los próximos eventos y las rutinas de hoy. Al tocar un día del calendario, la lista pasa a ser la de ese día. Las listas de eventos y rutinas se abren con un solo elemento pasado a la vista, el último, y vuelven a esa posición tras un minuto sin tocar la pantalla.
 
 <img src="docs/images/today.png" alt="Hoy" />
 
