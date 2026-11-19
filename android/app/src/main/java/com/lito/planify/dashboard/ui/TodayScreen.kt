@@ -87,6 +87,7 @@ private const val MONTHS_AHEAD = 12
  */
 @Composable
 fun TodayScreen(state: UiState, lastTouch: Long) {
+    val next = nextUp(state)
     var picked by remember { mutableStateOf<LocalDate?>(null) }
     LaunchedEffect(picked, lastTouch) {
         if (picked != null) {
@@ -99,7 +100,7 @@ fun TodayScreen(state: UiState, lastTouch: Long) {
         val column: Dp = (maxWidth - Gap * 2) / 3
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(Gap)) {
             Row(Modifier.fillMaxWidth().weight(0.55f), horizontalArrangement = Arrangement.spacedBy(Gap)) {
-                ClockColumn(state, Modifier.width(column).fillMaxHeight())
+                ClockColumn(state, next, Modifier.width(column).fillMaxHeight())
                 val forecast = state.forecast
                 val location = state.location
                 if (forecast != null && location != null) {
@@ -113,7 +114,7 @@ fun TodayScreen(state: UiState, lastTouch: Long) {
             }
             Row(Modifier.fillMaxWidth().weight(0.45f), horizontalArrangement = Arrangement.spacedBy(Gap)) {
                 MonthCard(state, picked, lastTouch, onDay = { picked = if (it == picked) null else it }, Modifier.width(column).fillMaxHeight())
-                EventsCard(state, picked, lastTouch, Modifier.width(column).fillMaxHeight())
+                EventsCard(state, next, picked, lastTouch, Modifier.width(column).fillMaxHeight())
                 RoutinesCard(state, lastTouch, Modifier.width(column).fillMaxHeight())
             }
         }
@@ -133,10 +134,9 @@ private fun Card(modifier: Modifier, content: @Composable ColumnScope.() -> Unit
 // --- Hora y siguiente evento ---
 
 @Composable
-private fun ClockColumn(state: UiState, modifier: Modifier) {
+private fun ClockColumn(state: UiState, next: Event?, modifier: Modifier) {
     val now = state.now
     val today = now.toLocalDate()
-    val next = nextUp(state)
     Column(modifier) {
         // Hora y fecha, centradas en el espacio que deja la tarjeta del siguiente evento
         Column(Modifier.fillMaxWidth().weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -152,11 +152,7 @@ private fun ClockColumn(state: UiState, modifier: Modifier) {
     }
 }
 
-/**
- * Lo siguiente: el primer evento o sesión de rutina que aún no ha empezado, si es de hoy o de mañana. Va en su tarjeta;
- * si es un evento, no se repite en la lista de próximos (las rutinas siguen todas en la suya). Si es más tarde, no hay
- * tarjeta y el evento sale en la lista como los demás.
- */
+/** Primer evento o sesión de rutina que aún no ha empezado, si es de hoy o de mañana. */
 private fun nextUp(state: UiState): Event? {
     val content = state.content ?: return null
     val next = (content.events + content.sessions).filter { !it.at.isBefore(state.now) }.minByOrNull { it.at } ?: return null
@@ -287,21 +283,25 @@ private fun MonthDay(date: LocalDate, isToday: Boolean, isPicked: Boolean, dots:
     }
 }
 
+internal fun eventsForList(calendarEvents: List<Event>, featured: Event?, today: LocalDate, day: LocalDate?): List<Event> {
+    val events = if (featured?.routine_id != null) (calendarEvents + featured).sortedBy { it.date_at } else calendarEvents
+    return events.filter {
+        val date = it.at.toLocalDate()
+        if (day != null) date == day else date >= today
+    }
+}
+
 /**
  * Próximos eventos con el formato del widget de la app: barra del color del calendario, "MIÉ 14 OCT · 16:00"
- * con el tiempo que falta en una píldora, y el título debajo. Los ya pasados de hoy, en gris. Sin el siguiente, que ya
- * está en su tarjeta. Con un [day] elegido en el calendario, solo los de ese día (también el siguiente).
+ * con el tiempo que falta en una píldora, y el título debajo. Los ya pasados de hoy, en gris.
+ * Con un [day] elegido en el calendario, solo se muestran los de ese día.
  */
 @Composable
-private fun EventsCard(state: UiState, day: LocalDate?, lastTouch: Long, modifier: Modifier) {
+private fun EventsCard(state: UiState, next: Event?, day: LocalDate?, lastTouch: Long, modifier: Modifier) {
     val now = state.now
-    val all = state.content?.events.orEmpty()
-    val events = if (day != null) {
-        all.filter { it.at.toLocalDate() == day }
-    } else {
-        val next = nextUp(state)
-        all.filter { it.at.toLocalDate() >= now.toLocalDate() && it !== next }
-    }
+    val today = now.toLocalDate()
+    val calendarEvents = state.content?.events.orEmpty()
+    val events = remember(calendarEvents, next, today, day) { eventsForList(calendarEvents, next, today, day) }
     Card(modifier) {
         val dayName = day?.let { "${it.weekdayName()} ${it.dayOfMonth}" }
         if (dayName != null) CardHeader(dayName, Icons.Outlined.Event, Palette.Rain, count = events.size)
