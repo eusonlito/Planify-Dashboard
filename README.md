@@ -273,7 +273,7 @@ Barra lateral con Hoy, Calendario, Tiempo, Tareas, sincronizar, Ajustes y apagar
 | **Calendario** | Dos semanas en dos filas, deslizando en vertical: el tiempo de cada día, los eventos y una caja con las rutinas |
 | **Tiempo** | Hoy de 00 a 23 h y 7 días; la semana siguiente en gráfica; tocar un día abre sus 24 horas con su cabecera |
 | **Tareas** | Todas las listas elegidas, en columnas |
-| **Reloj nocturno** | Fuera de horario, o al pulsar la luna: hora, fecha y tiempo sobre negro con el brillo al mínimo; tocarlo enseña el dashboard |
+| **Reloj nocturno** | Fuera de horario, o al pulsar la luna: hora, fecha y tiempo en gris sobre negro con la retroiluminación al 80 %; tocarlo enseña el dashboard |
 | **Ajustes** | Ubicación del tiempo (Open-Meteo), horario de pantalla (con reloj nocturno o apagado), brillo (deslizador o automático), Conexión (estado del Wi-Fi) y los botones de Wi-Fi, Ajustes de Android, cerrar sesión y apagar o reiniciar |
 
 Por dentro (detalle en [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)):

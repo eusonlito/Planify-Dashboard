@@ -25,7 +25,7 @@ import java.time.format.TextStyle
 
 /**
  * Reloj nocturno: fuera de horario, en vez de apagar la pantalla, la hora, la fecha y el tiempo de ahora en el centro,
- * en blanco sobre negro y en negrita (con el brillo al mínimo hace falta todo el contraste). El brillo lo pone
+ * en gris sobre negro y en negrita. El brillo lo pone
  * MainActivity. Todo estático: solo cambia una vez por minuto.
  * Tocar en cualquier sitio enseña el dashboard unos minutos.
  */
@@ -42,11 +42,11 @@ fun NightScreen(state: UiState, onWake: () -> Unit) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 now.format(HourMinute),
-                style = Type.Clock.copy(fontSize = 300.sp, lineHeight = 300.sp, letterSpacing = (-10).sp, fontWeight = FontWeight.Bold, color = Color.White, fontFeatureSettings = "tnum")
+                style = Type.Clock.copy(fontSize = 300.sp, lineHeight = 300.sp, letterSpacing = (-10).sp, fontWeight = FontWeight.Bold, color = NightInk, fontFeatureSettings = "tnum")
             )
             Text(
                 "${now.toLocalDate().weekdayName()} · ${now.dayOfMonth} ${now.month.getDisplayName(TextStyle.FULL, Spanish)}".uppercase(Spanish),
-                style = Type.Mono.copy(fontFamily = GeistMono, fontSize = 40.sp, letterSpacing = 10.sp, fontWeight = FontWeight.Bold, color = Color.White),
+                style = Type.Mono.copy(fontFamily = GeistMono, fontSize = 40.sp, letterSpacing = 10.sp, fontWeight = FontWeight.Bold, color = NightInk),
                 maxLines = 1,
                 modifier = Modifier.padding(top = 20.dp)
             )
@@ -59,7 +59,7 @@ fun NightScreen(state: UiState, onWake: () -> Unit) {
                     WeatherIcon(current.weather_code, current.is_day == 1, size = 110, colorFilter = NightIcon)
                     Text(
                         current.temperature_2m.degrees(),
-                        style = Type.Huge.copy(fontSize = 84.sp, lineHeight = 84.sp, letterSpacing = (-2).sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        style = Type.Huge.copy(fontSize = 84.sp, lineHeight = 84.sp, letterSpacing = (-2).sp, fontWeight = FontWeight.Bold, color = NightInk)
                     )
                 }
             }
@@ -67,5 +67,6 @@ fun NightScreen(state: UiState, onWake: () -> Unit) {
     }
 }
 
-/** El icono del tiempo, todo en blanco: sus colores, pensados para fondo claro, apenas se ven sobre negro. */
-private val NightIcon = ColorFilter.tint(Color.White)
+/** Atenúa el contenido sin tener que bajar la retroiluminación del LCD. */
+private val NightInk = Color(0xFF969696)
+private val NightIcon = ColorFilter.tint(NightInk)

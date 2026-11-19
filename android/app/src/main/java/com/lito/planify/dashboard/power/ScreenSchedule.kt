@@ -18,7 +18,7 @@ import java.time.ZoneId
 
 /**
  * Enciende y apaga la pantalla según el horario. Fuera de horario, por defecto la pantalla no se apaga: la app
- * muestra el reloj nocturno con el brillo al mínimo ([isNight]). Con [Schedule.screenOff] se apaga de verdad con
+ * muestra el reloj nocturno ([isNight]). Con [Schedule.screenOff] se apaga de verdad con
  * `lockNow()` (Device Owner, sin keyguard); encender es un wakelock que despierta la pantalla y trae la actividad al
  * frente. Si alguien la enciende con el botón fuera de horario, se vuelve a apagar a los [GRACE_MINUTES].
  * Mientras el reloj no sea válido (el RTC del marco no guarda la hora: arranca en la fecha de fábrica hasta que

@@ -92,7 +92,7 @@ Tras la primera instalación por USB, `adbd` escucha también en TCP 5555. Todos
 
 ## Horario de pantalla
 
-- **Reloj nocturno (por defecto):** fuera de horario la pantalla no se apaga. Muestra en el centro la hora, la fecha y el tiempo de ahora sobre negro, con la retroiluminación al mínimo estable elegido para este marco (64 de 255, `screenBrightness` de la ventana). Tocarlo enseña el dashboard durante 5 minutos y vuelve solo al reloj. A la hora de encendido vuelve el dashboard con el brillo de siempre.
+- **Reloj nocturno (por defecto):** fuera de horario la pantalla no se apaga. Muestra en el centro la hora, la fecha y el tiempo de ahora en gris sobre negro, con la retroiluminación a 204/255 (80 %) para evitar el parpadeo del panel. Tocarlo enseña el dashboard durante 5 minutos y vuelve solo al reloj. A la hora de encendido vuelve el dashboard con el brillo de siempre.
 - **Apagado de verdad** (Ajustes → desactivar «Reloj nocturno»): fuera de horario la pantalla se apaga con `lockNow()` (Device Owner) y se enciende a su hora con una alarma exacta. En esta placa **el táctil no despierta** la pantalla apagada; el botón de encendido sí. Si se enciende así fuera de horario, se vuelve a apagar sola a los 5 minutos.
 - **La luna de la barra lateral** sigue el mismo ajuste: con el reloj nocturno activo pasa a él (hasta que se toque o hasta la siguiente hora de encendido); si no, apaga la pantalla en el momento.
 - **El sistema no suspende nunca**, solo se apaga la pantalla. Lo impide un wakelock del kernel que pone el script de arranque. Por USB nunca se veía, porque el USB mantiene el sistema despierto; con el marco solo en Wi-Fi, la primera noche (14 de octubre, 23:30) fue así:
