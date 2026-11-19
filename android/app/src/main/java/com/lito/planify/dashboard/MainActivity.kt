@@ -1,6 +1,7 @@
 package com.lito.planify.dashboard
 
 import android.content.Intent
+import android.database.ContentObserver
 import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
@@ -22,13 +23,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.lito.planify.dashboard.admin.Kiosk
 import com.lito.planify.dashboard.admin.PowerMenuService
 import com.lito.planify.dashboard.admin.ReturnButton
+import com.lito.planify.dashboard.data.MIN_BRIGHTNESS
 import com.lito.planify.dashboard.power.ScreenSchedule
 import com.lito.planify.dashboard.ui.DashboardActions
 import com.lito.planify.dashboard.ui.DashboardApp
 import com.lito.planify.dashboard.ui.ProvideIconClock
 import com.lito.planify.dashboard.ui.SettingsCallbacks
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -77,10 +81,16 @@ class MainActivity : ComponentActivity() {
         }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // El reloj nocturno va con el brillo al mínimo; el resto, con el elegido en Ajustes (o el del sistema)
-                viewModel.state.map { if (it.night) NIGHT_BRIGHTNESS else it.brightness }.distinctUntilChanged().collect { value ->
+                combine(viewModel.state, systemBrightness()) { state, system ->
+                    when {
+                        state.night -> MIN_BRIGHTNESS
+                        state.brightness != null -> state.brightness
+                        system < MIN_BRIGHTNESS -> MIN_BRIGHTNESS
+                        else -> WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                    }
+                }.distinctUntilChanged().collect { value ->
                     window.attributes = window.attributes.apply {
-                        screenBrightness = value ?: WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                        screenBrightness = value
                     }
                 }
             }
@@ -107,9 +117,15 @@ class MainActivity : ComponentActivity() {
         ReturnButton.show(this)
     }
 
-    private companion object {
-        /** El paso más bajo de la retroiluminación (1 de 255): lo justo para leer el reloj nocturno a oscuras. */
-        const val NIGHT_BRIGHTNESS = 1f / 255f
+    private fun systemBrightness() = callbackFlow {
+        val setting = Settings.System.SCREEN_BRIGHTNESS
+        fun update() { trySend(Settings.System.getInt(contentResolver, setting, 255) / 255f) }
+        val observer = object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) = update()
+        }
+        contentResolver.registerContentObserver(Settings.System.getUriFor(setting), false, observer)
+        update()
+        awaitClose { contentResolver.unregisterContentObserver(observer) }
     }
 
     private fun hideSystemBars() {

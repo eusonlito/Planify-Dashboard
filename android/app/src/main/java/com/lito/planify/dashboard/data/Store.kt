@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.core.content.edit
 import com.google.gson.Gson
 
+/** Mínimo estable elegido en el panel del marco, en la escala de brillo de la ventana. */
+internal const val MIN_BRIGHTNESS = 64f / 255f
+
 /** Horario de pantalla en minutos desde medianoche, por tipo de día. */
 data class Schedule(
     val enabled: Boolean = false,
@@ -39,9 +42,9 @@ class Store(context: Context) {
         get() = read("schedule") ?: Schedule()
         set(value) = write("schedule", value)
 
-    /** Brillo de la ventana (0.05–1); null = el del sistema. */
+    /** Brillo manual de la ventana; null sigue al sistema. */
     var brightness: Float?
-        get() = prefs.getFloat("brightness", -1f).takeIf { it > 0f }
+        get() = prefs.getFloat("brightness", -1f).takeIf { it > 0f }?.coerceIn(MIN_BRIGHTNESS, 1f)
         set(value) = prefs.edit { putFloat("brightness", value ?: -1f) }
 
     /** Última hora válida (epoch ms), para ReferenceClock. */

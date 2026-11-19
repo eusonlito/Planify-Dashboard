@@ -60,6 +60,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lito.planify.dashboard.UiState
 import com.lito.planify.dashboard.data.GeoResult
+import com.lito.planify.dashboard.data.MIN_BRIGHTNESS
 import com.lito.planify.dashboard.data.Schedule
 import com.lito.planify.dashboard.data.WifiStatus
 import com.lito.planify.dashboard.data.readWifiStatus
@@ -230,9 +231,6 @@ private fun BrightnessSection(brightness: Float?, onChange: (Float?) -> Unit) {
     }
 }
 
-/** Brillo mínimo del deslizador: más bajo, la pantalla apenas se ve de día. */
-private const val MIN_BRIGHTNESS = 0.05f
-
 /** Salto del deslizador: de 5 en 5 %. */
 private const val BRIGHTNESS_STEP = 0.05f
 
@@ -246,7 +244,9 @@ private fun LevelSlider(value: Float, enabled: Boolean, modifier: Modifier = Mod
     val thumb = 26f
     fun valueAt(x: Float, width: Int): Float {
         val raw = MIN_BRIGHTNESS + (1f - MIN_BRIGHTNESS) * ((x - thumb) / (width - thumb * 2))
-        return ((raw / BRIGHTNESS_STEP).roundToInt() * BRIGHTNESS_STEP).coerceIn(MIN_BRIGHTNESS, 1f)
+        val snapped = (raw / BRIGHTNESS_STEP).roundToInt() * BRIGHTNESS_STEP
+        // El primer paso se muestra como 25 %, pero debe aplicar exactamente 64/255.
+        return snapped.coerceIn(MIN_BRIGHTNESS, 1f)
     }
     Canvas(
         modifier

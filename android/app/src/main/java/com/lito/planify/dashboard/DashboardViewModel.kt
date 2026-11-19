@@ -14,6 +14,7 @@ import com.lito.planify.dashboard.data.GeoResult
 import com.lito.planify.dashboard.data.Location
 import com.lito.planify.dashboard.data.ReferenceClock
 import com.lito.planify.dashboard.data.Schedule
+import com.lito.planify.dashboard.data.MIN_BRIGHTNESS
 import com.lito.planify.dashboard.data.Store
 import com.lito.planify.dashboard.data.Week
 import com.lito.planify.dashboard.data.cache.DiskCache
@@ -272,7 +273,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setBrightness(value: Float?) {
-        store.brightness = value
-        _state.update { it.copy(brightness = value) }
+        val brightness = value?.coerceIn(MIN_BRIGHTNESS, 1f)
+        store.brightness = brightness
+        _state.update { it.copy(brightness = brightness) }
     }
 }
