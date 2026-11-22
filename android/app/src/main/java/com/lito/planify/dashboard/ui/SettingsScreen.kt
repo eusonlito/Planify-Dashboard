@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -58,6 +59,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lito.planify.dashboard.updates.SystemUpdatePanel
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.lito.planify.dashboard.UiState
 import com.lito.planify.dashboard.data.GeoResult
 import com.lito.planify.dashboard.data.MIN_BRIGHTNESS
@@ -86,7 +90,7 @@ class SettingsCallbacks(
  * Dentro de las cajas (blancas) los controles van en crema ([Control]) para que se distingan.
  */
 @Composable
-fun SettingsScreen(state: UiState, actions: DashboardActions, callbacks: SettingsCallbacks) {
+fun SettingsScreen(state: UiState, actions: DashboardActions, callbacks: SettingsCallbacks, onUpdates: () -> Unit) {
     ScreenPadding {
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
             Panel(Modifier.weight(1f).fillMaxHeight()) {
@@ -103,12 +107,26 @@ fun SettingsScreen(state: UiState, actions: DashboardActions, callbacks: Setting
                 }
                 Panel(Modifier.fillMaxWidth()) {
                     Column(verticalArrangement = Arrangement.spacedBy(ButtonGap)) {
+                        PillButton("Actualizaciones", Modifier.fillMaxWidth(), background = Control, onClick = onUpdates)
                         PillButton("Wi-Fi", Modifier.fillMaxWidth(), background = Control, onClick = actions.openWifi)
                         PillButton("Ajustes de Android", Modifier.fillMaxWidth(), background = Control, onClick = actions.openSettings)
                         PillButton("Cerrar sesión", Modifier.fillMaxWidth(), background = Control, onClick = callbacks.onLogout)
                         PillButton("Apagar o reiniciar", Modifier.fillMaxWidth(), background = Control, onClick = actions.powerMenu)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun DashboardUpdates(onBack: () -> Unit) {
+    ScreenPadding {
+        Panel(Modifier.fillMaxHeight().widthIn(max = 900.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                SectionLabel("Actualizaciones")
+                SystemUpdatePanel()
+                PillButton("Volver a ajustes", Modifier.fillMaxWidth(), background = Control, onClick = onBack)
             }
         }
     }

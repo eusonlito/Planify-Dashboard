@@ -8,6 +8,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import androidx.core.net.toUri
 import android.provider.Settings
 import com.lito.planify.dashboard.MainActivity
 
@@ -32,7 +34,14 @@ object Kiosk {
         if (!isOwner(activity)) return
         val dpm = dpm(activity)
         val admin = admin(activity)
-        dpm.setLockTaskPackages(admin, arrayOf(activity.packageName, SETTINGS))
+        // En lock task también debe poder abrirse el instalador de APK del sistema.
+        val apkIntent = Intent(Intent.ACTION_VIEW).setDataAndType(
+            "content://${activity.packageName}.updates/updates/update.apk".toUri(), "application/vnd.android.package-archive"
+        )
+        val installers = activity.packageManager.queryIntentActivities(apkIntent, PackageManager.MATCH_SYSTEM_ONLY)
+            .map { it.activityInfo.packageName }
+            .filter { it == "com.android.packageinstaller" || it == "com.google.android.packageinstaller" }
+        dpm.setLockTaskPackages(admin, (listOf(activity.packageName, SETTINGS) + installers).distinct().toTypedArray())
         // Solo el menú de apagado (pulsación larga del botón de encendido): sin él no hay forma limpia de apagar
         dpm.setLockTaskFeatures(admin, DevicePolicyManager.LOCK_TASK_FEATURE_GLOBAL_ACTIONS)
         dpm.setKeyguardDisabled(admin, true)

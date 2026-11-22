@@ -341,3 +341,9 @@ docs/                 FRAME, SETUP, ARCHITECTURE, ANDROID, inventory/ e images/
 
 - [wesbos/photo-frame-dashboard](https://github.com/wesbos/photo-frame-dashboard): la idea, el método y la documentación del A133 (LOOFII C-3) en la que se basan la copia de seguridad, la recuperación y el cortafuegos.
 - [Open-Meteo](https://open-meteo.com/): la previsión del tiempo, libre y sin clave.
+
+## Actualizaciones desde Android
+
+En **Ajustes → Actualizaciones** se muestra la versión instalada y se consulta la última release estable de este repositorio. El usuario descarga el APK y confirma la instalación en Android. La primera vez puede ser necesario permitir instalaciones desde esta aplicación. La descarga comprueba el SHA-256, el identificador de paquete, la firma y que aumente el código de versión.
+
+Las instalaciones antiguas necesitan recibir una primera versión con el actualizador por el método habitual. Para preparar futuras actualizaciones, incrementa `versionCode` y `versionName` (mayor.menor.parche) en `android/app/build.gradle.kts` y ejecuta `python3 android/prepare-update.py` desde este repositorio con la clave habitual de la instalación. El comando verifica y prepara **en local** los dos archivos. Tras obtener autorización para esa publicación, la release estable debe llevar la etiqueta `v<versionName>` y los adjuntos `Planify-Dashboard.apk` y `Planify-Dashboard.apk.sha256` del directorio indicado.

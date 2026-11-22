@@ -116,6 +116,12 @@ class ScheduleReceiver : BroadcastReceiver() {
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
+            Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                ScreenSchedule.reschedule(context)
+                if (Kiosk.isOwner(context) && context.getSystemService(PowerManager::class.java).isInteractive) {
+                    ScreenSchedule.wake(context)
+                }
+            }
             Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED -> ScreenSchedule.reschedule(context)
         }
     }

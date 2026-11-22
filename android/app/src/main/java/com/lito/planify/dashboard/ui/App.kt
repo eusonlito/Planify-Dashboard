@@ -60,6 +60,7 @@ enum class Page(val label: String, val icon: ImageVector) {
     Calendar("Calendario", Icons.Outlined.CalendarMonth),
     Weather("Tiempo", Icons.Outlined.Thermostat),
     Tasks("Tareas", Icons.Outlined.Checklist),
+    Updates("Actualizaciones", Icons.Outlined.Settings),
     Settings("Ajustes", Icons.Outlined.Settings)
 }
 
@@ -91,12 +92,12 @@ fun DashboardApp(
 
     // Tras 2 minutos sin tocar se vuelve a Hoy.
     LaunchedEffect(page, lastTouch) {
-        if (page == Page.Today) return@LaunchedEffect
+        if (page == Page.Today || page == Page.Updates) return@LaunchedEffect
         delay(IDLE_MILLIS)
         page = Page.Today
     }
     // Es el launcher: "atrás" vuelve a Hoy y nunca cierra la actividad.
-    BackHandler { page = Page.Today }
+    BackHandler { page = if (page == Page.Updates) Page.Settings else Page.Today }
 
     Box(
         Modifier
@@ -130,7 +131,8 @@ fun DashboardApp(
                     Page.Calendar -> CalendarScreen(state, onLoadWeek)
                     Page.Weather -> WeatherScreen(state)
                     Page.Tasks -> TasksScreen(state)
-                    Page.Settings -> SettingsScreen(state, actions, settings)
+                    Page.Settings -> SettingsScreen(state, actions, settings, onUpdates = { page = Page.Updates })
+                    Page.Updates -> DashboardUpdates { page = Page.Settings }
                 }
             }
         }
@@ -149,9 +151,9 @@ private fun Rail(current: Page, state: UiState, onSelect: (Page) -> Unit, onSync
     ) {
         // Todos los botones juntos arriba y el reloj abajo del todo
         Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            Page.entries.filter { it != Page.Settings }.forEach { page -> RailItem(page.label, page.icon, page == current) { onSelect(page) } }
+            Page.entries.filter { it != Page.Settings && it != Page.Updates }.forEach { page -> RailItem(page.label, page.icon, page == current) { onSelect(page) } }
             SyncItem(state.syncing, onSync)
-            RailItem(Page.Settings.label, Page.Settings.icon, current == Page.Settings) { onSelect(Page.Settings) }
+            RailItem(Page.Settings.label, Page.Settings.icon, current == Page.Settings || current == Page.Updates) { onSelect(Page.Settings) }
             RailItem("Apagar pantalla", Icons.Outlined.Bedtime, false, onClick = onSleep)
         }
         Spacer(Modifier.weight(1f))

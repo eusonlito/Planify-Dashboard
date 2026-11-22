@@ -4,7 +4,7 @@ Cómo está hecha la app del marco: pantallas, datos, estructura y desarrollo. P
 
 ## Pantallas
 
-La barra lateral izquierda tiene arriba, solo con iconos, Hoy, Calendario, Tiempo, Tareas, **sincronizar** (vuelve a pedir el contenido de Hoy, las semanas del calendario ya cargadas y el tiempo; el icono gira mientras dura), Ajustes y apagar la pantalla. Abajo del todo, la hora (horas y minutos en dos líneas, con "Sin conexión" debajo si falla la red o la sincronización). Tras 2 minutos sin tocar, vuelve a Hoy.
+La barra lateral izquierda tiene arriba, solo con iconos, Hoy, Calendario, Tiempo, Tareas, **sincronizar** (vuelve a pedir el contenido de Hoy, las semanas del calendario ya cargadas y el tiempo; el icono gira mientras dura), Ajustes y apagar la pantalla. Abajo del todo, la hora (horas y minutos en dos líneas, con "Sin conexión" debajo si falla la red o la sincronización). Tras 2 minutos sin tocar, vuelve a Hoy, salvo en el panel de actualizaciones, donde se puede esperar a que termine la descarga.
 
 Sin sesión iniciada se muestra el login (icono de Planify y formulario, centrados). Si no hay Internet, en su lugar aparece "Esperando conexión a Internet…" con "Ir a Ajustes" (ajustes de Wi-Fi), y el formulario aparece solo cuando llega la red.
 
