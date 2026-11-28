@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 combine(viewModel.state, systemBrightness()) { state, system ->
                     when {
-                        state.night -> 204f / 255f // Retroiluminación probada con el reloj sobre negro.
+                        state.night -> WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL
                         state.brightness != null -> state.brightness
                         system < MIN_BRIGHTNESS -> MIN_BRIGHTNESS
                         else -> WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
