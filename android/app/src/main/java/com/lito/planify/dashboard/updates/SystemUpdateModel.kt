@@ -1,5 +1,6 @@
 package com.lito.planify.dashboard.updates
 
+import android.text.format.Formatter
 import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,7 +59,7 @@ class SystemUpdateModel(private val app: Application, private val saved: SavedSt
                 message = when {
                     latest == null -> "Todavía no hay una versión publicada."
                     release == null -> "Tienes la versión más reciente."
-                    else -> "Hay una actualización disponible."
+                    else -> "Tamaño de la descarga · ${Formatter.formatShortFileSize(app, latest.size)}"
                 }
             } catch (e: CancellationException) {
                 throw e

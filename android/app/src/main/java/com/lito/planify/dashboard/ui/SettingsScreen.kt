@@ -122,11 +122,14 @@ fun SettingsScreen(state: UiState, actions: DashboardActions, callbacks: Setting
 @Composable
 internal fun DashboardUpdates(onBack: () -> Unit) {
     ScreenPadding {
-        Panel(Modifier.fillMaxHeight().widthIn(max = 900.dp)) {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                SectionLabel("Actualizaciones")
-                SystemUpdatePanel()
-                PillButton("Volver a ajustes", Modifier.fillMaxWidth(), background = Control, onClick = onBack)
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(Modifier.widthIn(max = 1440.dp).fillMaxWidth().verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(32.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Actualizaciones", style = Type.Title)
+                    PillButton("Volver a ajustes", onClick = onBack)
+                }
+                Panel(Modifier.fillMaxWidth()) { SystemUpdatePanel() }
             }
         }
     }
