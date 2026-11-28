@@ -8,10 +8,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.withResumed
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lito.planify.dashboard.ui.PillButton
 import com.lito.planify.dashboard.ui.theme.Type
@@ -19,6 +25,9 @@ import com.lito.planify.dashboard.ui.theme.Type
 @Composable
 internal fun SystemUpdatePanel(model: SystemUpdateModel = viewModel()) {
     val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    var updateRequested by rememberSaveable { mutableStateOf(false) }
+    val downloading = model.percent != null
     val installer = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         model.feedback("Si la actualización sigue pendiente, puedes abrir de nuevo el instalador.")
     }
@@ -35,6 +44,22 @@ internal fun SystemUpdatePanel(model: SystemUpdateModel = viewModel()) {
         else model.feedback("Para continuar, permite a Planify Dashboard instalar aplicaciones desde esta fuente.")
     }
 
+    LaunchedEffect(updateRequested, downloading, model.verified, lifecycle) {
+        if (!updateRequested || downloading) return@LaunchedEffect
+        if (model.verified == null) {
+            updateRequested = false
+            return@LaunchedEffect
+        }
+        lifecycle.withResumed {
+            updateRequested = false
+            if (context.packageManager.canRequestPackageInstalls()) install()
+            else try {
+                permission.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, "package:${context.packageName}".toUri()))
+            } catch (_: RuntimeException) {
+                model.feedback("Abre Ajustes de Android y permite instalar aplicaciones desde esta fuente.")
+            }
+        }
+    }
     LaunchedEffect(model) {
         if (model.verified == null && model.percent == null) model.check()
     }
@@ -44,18 +69,16 @@ internal fun SystemUpdatePanel(model: SystemUpdateModel = viewModel()) {
         Text(model.message, style = Type.Body)
         model.percent?.let { Text("Descarga · $it %", style = Type.Body) }
         when {
-            model.percent != null -> UpdateButton("Cancelar descarga", onClick = model::cancel)
-            model.verified != null -> UpdateButton("Instalar actualización") {
-                if (context.packageManager.canRequestPackageInstalls()) install()
-                else try {
-                    permission.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, "package:${context.packageName}".toUri()))
-                } catch (_: RuntimeException) {
-                    model.feedback("Abre Ajustes de Android y permite instalar aplicaciones desde esta fuente.")
-                }
+            downloading -> UpdateButton("Cancelar descarga") {
+                updateRequested = false
+                model.cancel()
             }
-            model.release != null -> UpdateButton("Descargar actualización", onClick = model::prepare)
+            model.release != null -> UpdateButton("Actualizar", enabled = !updateRequested) {
+                updateRequested = true
+                if (model.verified == null) model.prepare()
+            }
         }
-        if (model.percent == null) UpdateButton("Buscar actualizaciones", !model.checking, model::check)
+        if (!downloading && !updateRequested) UpdateButton("Buscar actualizaciones", !model.checking, model::check)
     }
 }
 
